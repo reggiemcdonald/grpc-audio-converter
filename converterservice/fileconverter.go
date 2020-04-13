@@ -32,8 +32,8 @@ func NewFileConverter(s3Endpoint string) *FileConverter {
 		Region: aws.String("us-west-2"),
 		Endpoint: aws.String(os.Getenv("S3_ENDPOINT")),
 		Credentials: credentials.NewStaticCredentialsFromCreds(credentials.Value{
-			AccessKeyID: aws.StringValue(aws.String("abc")),
-			SecretAccessKey: aws.StringValue(aws.String("123")),
+			AccessKeyID: os.Getenv("ACCESS_KEY"),
+			SecretAccessKey: os.Getenv("SECRET_ACCESS_KEY"),
 		}),
 		S3ForcePathStyle: aws.Bool(true),
 	}))
@@ -97,8 +97,9 @@ func (f *FileConverter) ConvertFile(req *pb.ConvertFileRequest, id string) {
 		log.Printf("error: %v", err)
 		log.Fatal("Failed to send to s3")
 	}
-	log.Println("here")
-	cmd.Wait()
-	log.Println("done")
+
+	if err := os.Remove(tmpFile); err != nil {
+		panic(err)
+	}
 
 }
