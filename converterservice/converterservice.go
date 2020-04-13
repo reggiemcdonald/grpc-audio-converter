@@ -1,36 +1,44 @@
 package converterservice
 
 import (
-	"github.com/reggiemcdonald/grpc-audio-converter/pb"
 	"fmt"
+	"github.com/reggiemcdonald/grpc-audio-converter/pb"
 	context "golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"log"
 	"net"
+	"os"
 )
 
-type server struct {}
+type server struct {
+	fileConverter *FileConverter
+}
 
 func NewConverterService(port int) {
+	log.Println("Starting service...")
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		log.Fatalf("Failed to listen to port %d, caused by %v. Is this port occupied?", port, err)
 	}
 	s := grpc.NewServer()
-	pb.RegisterConverterServiceServer(s, &server{})
+	pb.RegisterConverterServiceServer(s, &server{
+		fileConverter: NewFileConverter(os.Getenv("S3_ENDPOINT")),
+	})
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("Failure! %v", err)
 	}
 }
 
-func (s *server) ConvertS3File(ctx context.Context, req *pb.ConvertS3FileRequest) (*pb.ConvertS3FileResponse, error) {
-	// TODO: Stub
-	return &pb.ConvertS3FileResponse{Accepted: false, Id: "ID"}, nil
+func (s *server) ConvertFile(ctx context.Context, req *pb.ConvertFileRequest) (*pb.ConvertFileResponse, error) {
+	// TODO: Create the ID for the request
+	go s.fileConverter.ConvertFile(req, "TEST_ID")
+	return &pb.ConvertFileResponse{Accepted: true, Id: "TEST_ID2"}, nil
 }
 
-func (s *server) ConvertS3FileQuery(ctx context.Context, req *pb.ConvertS3FileQueryRequest) (*pb.ConvertS3FileQueryResponse, error) {
+func (s *server) ConvertFileQuery(ctx context.Context, req *pb.ConvertFileQueryRequest) (*pb.ConvertFileQueryResponse, error) {
 	// TODO: stub
-	return &pb.ConvertS3FileQueryResponse{Id: "ID", Status: 3}, nil
+	log.Println("HERE")
+	return &pb.ConvertFileQueryResponse{Id: "ID", Status: 3}, nil
 }
 
 func (s *server) ConvertStream(ctx context.Context, req *pb.ConvertStreamRequest) (*pb.ConvertStreamResponse, error) {
