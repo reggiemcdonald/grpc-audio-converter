@@ -13,6 +13,13 @@ type FileConverterData struct {
 	db *sql.DB
 }
 
+type ConvertJob struct {
+	id          string
+	status      string
+	currUrl     string
+	lastUpdated time.Time
+}
+
 /*
  * Database constants
  */
@@ -77,4 +84,21 @@ func (f *FileConverterData) FailConversion(id string) (bool, error) {
 		return false, nil
 	}
 	return true, nil
+}
+
+/*
+ * Fetches ConvertJob from the database
+ */
+func (f *FileConverterData) GetConversion(id string) (*ConvertJob, error) {
+	stmt := fmt.Sprintf("SELECT * FROM %s WHERE id=$1", tableName)
+	var (
+		status string
+		currUrl string
+		lastUpdated time.Time
+	)
+	err := f.db.QueryRow(stmt, id).Scan(&id, &status, &currUrl, &lastUpdated)
+	if err != nil {
+		return nil, err
+	}
+	return &ConvertJob{id, status, currUrl, lastUpdated}, nil
 }

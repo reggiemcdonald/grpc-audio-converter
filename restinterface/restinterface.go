@@ -37,8 +37,17 @@ func main() {
 	client := pb.NewConverterServiceClient(conn)
 	r := gin.Default()
 	r.GET("/convert-file", func(c *gin.Context) {
-		log.Println("Received request")
-		// TODO
+		id := c.Query("id")
+		if id == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "missing required param \"id\""})
+			return
+		}
+		res, err := client.ConvertFileQuery(c, &pb.ConvertFileQueryRequest{Id: id})
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, res)
 	})
 	r.POST("/convert-file", func(c *gin.Context) {
 		var b body

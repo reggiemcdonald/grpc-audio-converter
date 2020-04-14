@@ -1,6 +1,7 @@
 package converterservice
 
 import (
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/reggiemcdonald/grpc-audio-converter/pb"
@@ -52,8 +53,17 @@ func (s *server) ConvertFile(ctx context.Context, req *pb.ConvertFileRequest) (*
 }
 
 func (s *server) ConvertFileQuery(ctx context.Context, req *pb.ConvertFileQueryRequest) (*pb.ConvertFileQueryResponse, error) {
-	// TODO: stub
-	return &pb.ConvertFileQueryResponse{Id: "ID", Status: 3}, nil
+	db := s.fileConverter.db
+	job, err := db.GetConversion(req.Id)
+	if err != nil {
+		log.Printf("failed to get %s, encountered %v", req.Id, err)
+		return nil, errors.New(fmt.Sprintf("failed to get %s", req.Id))
+	}
+	return &pb.ConvertFileQueryResponse{
+		Id: job.id,
+		Status: pb.ConvertFileQueryResponse_Status(pb.ConvertFileQueryResponse_Status_value[job.status]),
+		Url: job.currUrl,
+	}, nil
 }
 
 func (s *server) ConvertStream(ctx context.Context, req *pb.ConvertStreamRequest) (*pb.ConvertStreamResponse, error) {
