@@ -1,16 +1,13 @@
 package converterservice
 
 import (
-	"bufio"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/reggiemcdonald/grpc-audio-converter/pb"
 	"log"
-	"net/http"
 	"os"
 	"os/exec"
 )
@@ -23,13 +20,12 @@ const (
 )
 
 type FileConverter struct {
-	s3 *s3.S3
 	uploader *s3manager.Uploader
 }
 
 func NewFileConverter(s3Endpoint string) *FileConverter {
 	sess := session.Must(session.NewSession(&aws.Config{
-		Region: aws.String("us-west-2"),
+		Region: aws.String(os.Getenv("REGION")),
 		Endpoint: aws.String(os.Getenv("S3_ENDPOINT")),
 		Credentials: credentials.NewStaticCredentialsFromCreds(credentials.Value{
 			AccessKeyID: os.Getenv("ACCESS_KEY"),
@@ -55,32 +51,21 @@ func encodingToString(req *pb.ConvertFileRequest) (string, string) {
 /*
  * Downloads a file at the request source URL and streams it to FFMPEG for conversion
  * to the requested encoding
- * TODO: Handle errors
  */
 func (f *FileConverter) ConvertFile(req *pb.ConvertFileRequest, id string) {
 	sourceUrl := req.SourceUrl
 	destinationBucket := os.Getenv("BUCKET_NAME")
 	sourceEncoding, destEncoding := encodingToString(req)
 	tmpFile := fmt.Sprintf("/tmp/%s", id)
-	getFile, err := http.Get(sourceUrl)
-	if err != nil {
-		panic(err)
-	}
-	defer getFile.Body.Close()
-	if err != nil {
-		panic(err)
-	}
 	cmd := exec.Command(FFMPEG,
 		FORMAT_FLAG,
 		sourceEncoding,
 		INPUT_FLAG,
-		STDIN_PIPE,
+		sourceUrl,
 		FORMAT_FLAG,
 		destEncoding,
 		tmpFile,
 	)
-	fileReader := bufio.NewReader(getFile.Body)
-	cmd.Stdin = fileReader
 	cmd.Stderr = os.Stderr
 	cmd.Start()
 	cmd.Wait()
@@ -88,7 +73,6 @@ func (f *FileConverter) ConvertFile(req *pb.ConvertFileRequest, id string) {
 	if err != nil {
 		log.Fatalf("error preserving tmp file %v", err)
 	}
-
 	if _, err := f.uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(destinationBucket),
 		Key:    aws.String(id),
@@ -97,9 +81,8 @@ func (f *FileConverter) ConvertFile(req *pb.ConvertFileRequest, id string) {
 		log.Printf("error: %v", err)
 		log.Fatal("Failed to send to s3")
 	}
-
 	if err := os.Remove(tmpFile); err != nil {
 		panic(err)
 	}
-
+	log.Printf("sent %s to s3", id)
 }

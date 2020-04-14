@@ -2,6 +2,7 @@ package converterservice
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/reggiemcdonald/grpc-audio-converter/pb"
 	context "golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -31,8 +32,9 @@ func NewConverterService(port int) {
 
 func (s *server) ConvertFile(ctx context.Context, req *pb.ConvertFileRequest) (*pb.ConvertFileResponse, error) {
 	// TODO: Create the ID for the request
-	go s.fileConverter.ConvertFile(req, "TEST_ID")
-	return &pb.ConvertFileResponse{Accepted: true, Id: "TEST_ID2"}, nil
+	uuid := uuid.New().String()
+	go s.fileConverter.ConvertFile(req, uuid)
+	return &pb.ConvertFileResponse{Accepted: true, Id: uuid}, nil
 }
 
 func (s *server) ConvertFileQuery(ctx context.Context, req *pb.ConvertFileQueryRequest) (*pb.ConvertFileQueryResponse, error) {
