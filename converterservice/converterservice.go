@@ -1,36 +1,69 @@
 package converterservice
 
 import (
-	"github.com/reggiemcdonald/grpc-audio-converter/pb"
+	"errors"
 	"fmt"
+	"github.com/google/uuid"
+	"github.com/reggiemcdonald/grpc-audio-converter/pb"
 	context "golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"log"
 	"net"
+	"os"
 )
 
-type server struct {}
+type server struct {
+	fileConverter *FileConverter
+}
+
+func newConfiguration() FileConverterConfiguration {
+	bucketName := os.Getenv("BUCKET_NAME")
+	s3endpoint := os.Getenv("S3_ENDPOINT")
+	region     := os.Getenv("REGION")
+	dbUser     := os.Getenv("POSTGRES_USER")
+	dbPass     := os.Getenv("POSTGRES_PASSWORD")
+	return FileConverterConfiguration{
+		bucketName: bucketName,
+		s3endpoint: s3endpoint,
+		region:     region,
+		dbUser:     dbUser,
+		dbPass:     dbPass,
+	}
+}
 
 func NewConverterService(port int) {
+	log.Println("Starting service...")
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		log.Fatalf("Failed to listen to port %d, caused by %v. Is this port occupied?", port, err)
 	}
 	s := grpc.NewServer()
-	pb.RegisterConverterServiceServer(s, &server{})
+	pb.RegisterConverterServiceServer(s, &server{
+		fileConverter: NewFileConverter(newConfiguration()),
+	})
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("Failure! %v", err)
 	}
 }
 
-func (s *server) ConvertS3File(ctx context.Context, req *pb.ConvertS3FileRequest) (*pb.ConvertS3FileResponse, error) {
-	// TODO: Stub
-	return &pb.ConvertS3FileResponse{Accepted: false, Id: "ID"}, nil
+func (s *server) ConvertFile(ctx context.Context, req *pb.ConvertFileRequest) (*pb.ConvertFileResponse, error) {
+	uuid := uuid.New().String()
+	go s.fileConverter.ConvertFile(req, uuid)
+	return &pb.ConvertFileResponse{Accepted: true, Id: uuid}, nil
 }
 
-func (s *server) ConvertS3FileQuery(ctx context.Context, req *pb.ConvertS3FileQueryRequest) (*pb.ConvertS3FileQueryResponse, error) {
-	// TODO: stub
-	return &pb.ConvertS3FileQueryResponse{Id: "ID", Status: 3}, nil
+func (s *server) ConvertFileQuery(ctx context.Context, req *pb.ConvertFileQueryRequest) (*pb.ConvertFileQueryResponse, error) {
+	db := s.fileConverter.db
+	job, err := db.GetConversion(req.Id)
+	if err != nil {
+		log.Printf("failed to get %s, encountered %v", req.Id, err)
+		return nil, errors.New(fmt.Sprintf("failed to get %s", req.Id))
+	}
+	return &pb.ConvertFileQueryResponse{
+		Id: job.id,
+		Status: pb.ConvertFileQueryResponse_Status(pb.ConvertFileQueryResponse_Status_value[job.status]),
+		Url: job.currUrl,
+	}, nil
 }
 
 func (s *server) ConvertStream(ctx context.Context, req *pb.ConvertStreamRequest) (*pb.ConvertStreamResponse, error) {

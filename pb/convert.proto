@@ -15,29 +15,26 @@ enum Encoding {
  * audio at bucketSource/keySource from encodingSource
  * to audio at bucketDest/keyDest in encodingDest
  */
-message ConvertS3FileRequest {
-    string sourceBucket     = 1;
-    string sourceKey        = 2;
-    string destBucket       = 3;
-    string destKey          = 4;
-    Encoding sourceEncoding = 5;
-    Encoding destEncoding   = 6;
+message ConvertFileRequest {
+    string sourceUrl        = 1;
+    Encoding sourceEncoding = 6;
+    Encoding destEncoding   = 7;
 }
 
 /*
  * A response returned from convert file indicating
  * whether the request was accepted, and a unique identifier
  */
-message ConvertS3FileResponse {
-    bool accepted = 1;
-    string id     = 2;
+message ConvertFileResponse {
+    string id     = 1;
+    bool accepted = 2;
 }
 
 /*
  * A request to the Converter service to lookup
  * the status of a job
  */
-message ConvertS3FileQueryRequest {
+message ConvertFileQueryRequest {
     string id = 1;
 }
 
@@ -45,7 +42,7 @@ message ConvertS3FileQueryRequest {
  * A response from the Converter service that contains
  * the id of the job, and its current status
  */
-message ConvertS3FileQueryResponse {
+message ConvertFileQueryResponse {
     string id       = 1;
     enum Status {
         QUEUED      = 0;
@@ -54,6 +51,7 @@ message ConvertS3FileQueryResponse {
         FAILED      = 3;
     }
     Status status   = 2;
+    string url      = 3;
 }
 
 /*
@@ -81,12 +79,12 @@ service ConverterService {
     /*
      * Create a file encoding conversion job from S3
      */
-    rpc ConvertS3File (ConvertS3FileRequest) returns (ConvertS3FileResponse);
+    rpc ConvertFile (ConvertFileRequest) returns (ConvertFileResponse);
 
     /*
      * Lookup the status of a job
      */
-    rpc ConvertS3FileQuery(ConvertS3FileQueryRequest) returns (ConvertS3FileQueryResponse);
+    rpc ConvertFileQuery(ConvertFileQueryRequest) returns (ConvertFileQueryResponse);
 
     /*
      * Stream an audio file to the conversion service for real-time conversion

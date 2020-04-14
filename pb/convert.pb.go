@@ -56,34 +56,34 @@ func (Encoding) EnumDescriptor() ([]byte, []int) {
 	return fileDescriptor_28744cb449e70622, []int{0}
 }
 
-type ConvertS3FileQueryResponse_Status int32
+type ConvertFileQueryResponse_Status int32
 
 const (
-	ConvertS3FileQueryResponse_QUEUED     ConvertS3FileQueryResponse_Status = 0
-	ConvertS3FileQueryResponse_CONVERTING ConvertS3FileQueryResponse_Status = 1
-	ConvertS3FileQueryResponse_COMPLETED  ConvertS3FileQueryResponse_Status = 2
-	ConvertS3FileQueryResponse_FAILED     ConvertS3FileQueryResponse_Status = 3
+	ConvertFileQueryResponse_QUEUED     ConvertFileQueryResponse_Status = 0
+	ConvertFileQueryResponse_CONVERTING ConvertFileQueryResponse_Status = 1
+	ConvertFileQueryResponse_COMPLETED  ConvertFileQueryResponse_Status = 2
+	ConvertFileQueryResponse_FAILED     ConvertFileQueryResponse_Status = 3
 )
 
-var ConvertS3FileQueryResponse_Status_name = map[int32]string{
+var ConvertFileQueryResponse_Status_name = map[int32]string{
 	0: "QUEUED",
 	1: "CONVERTING",
 	2: "COMPLETED",
 	3: "FAILED",
 }
 
-var ConvertS3FileQueryResponse_Status_value = map[string]int32{
+var ConvertFileQueryResponse_Status_value = map[string]int32{
 	"QUEUED":     0,
 	"CONVERTING": 1,
 	"COMPLETED":  2,
 	"FAILED":     3,
 }
 
-func (x ConvertS3FileQueryResponse_Status) String() string {
-	return proto.EnumName(ConvertS3FileQueryResponse_Status_name, int32(x))
+func (x ConvertFileQueryResponse_Status) String() string {
+	return proto.EnumName(ConvertFileQueryResponse_Status_name, int32(x))
 }
 
-func (ConvertS3FileQueryResponse_Status) EnumDescriptor() ([]byte, []int) {
+func (ConvertFileQueryResponse_Status) EnumDescriptor() ([]byte, []int) {
 	return fileDescriptor_28744cb449e70622, []int{3, 0}
 }
 
@@ -91,79 +91,55 @@ func (ConvertS3FileQueryResponse_Status) EnumDescriptor() ([]byte, []int) {
 // A message that represents a request to convert
 // audio at bucketSource/keySource from encodingSource
 // to audio at bucketDest/keyDest in encodingDest
-type ConvertS3FileRequest struct {
-	SourceBucket         string   `protobuf:"bytes,1,opt,name=sourceBucket,proto3" json:"sourceBucket,omitempty"`
-	SourceKey            string   `protobuf:"bytes,2,opt,name=sourceKey,proto3" json:"sourceKey,omitempty"`
-	DestBucket           string   `protobuf:"bytes,3,opt,name=destBucket,proto3" json:"destBucket,omitempty"`
-	DestKey              string   `protobuf:"bytes,4,opt,name=destKey,proto3" json:"destKey,omitempty"`
-	SourceEncoding       Encoding `protobuf:"varint,5,opt,name=sourceEncoding,proto3,enum=pb.Encoding" json:"sourceEncoding,omitempty"`
-	DestEncoding         Encoding `protobuf:"varint,6,opt,name=destEncoding,proto3,enum=pb.Encoding" json:"destEncoding,omitempty"`
+type ConvertFileRequest struct {
+	SourceUrl            string   `protobuf:"bytes,1,opt,name=sourceUrl,proto3" json:"sourceUrl,omitempty"`
+	SourceEncoding       Encoding `protobuf:"varint,6,opt,name=sourceEncoding,proto3,enum=pb.Encoding" json:"sourceEncoding,omitempty"`
+	DestEncoding         Encoding `protobuf:"varint,7,opt,name=destEncoding,proto3,enum=pb.Encoding" json:"destEncoding,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ConvertS3FileRequest) Reset()         { *m = ConvertS3FileRequest{} }
-func (m *ConvertS3FileRequest) String() string { return proto.CompactTextString(m) }
-func (*ConvertS3FileRequest) ProtoMessage()    {}
-func (*ConvertS3FileRequest) Descriptor() ([]byte, []int) {
+func (m *ConvertFileRequest) Reset()         { *m = ConvertFileRequest{} }
+func (m *ConvertFileRequest) String() string { return proto.CompactTextString(m) }
+func (*ConvertFileRequest) ProtoMessage()    {}
+func (*ConvertFileRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_28744cb449e70622, []int{0}
 }
 
-func (m *ConvertS3FileRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ConvertS3FileRequest.Unmarshal(m, b)
+func (m *ConvertFileRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ConvertFileRequest.Unmarshal(m, b)
 }
-func (m *ConvertS3FileRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ConvertS3FileRequest.Marshal(b, m, deterministic)
+func (m *ConvertFileRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ConvertFileRequest.Marshal(b, m, deterministic)
 }
-func (m *ConvertS3FileRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ConvertS3FileRequest.Merge(m, src)
+func (m *ConvertFileRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ConvertFileRequest.Merge(m, src)
 }
-func (m *ConvertS3FileRequest) XXX_Size() int {
-	return xxx_messageInfo_ConvertS3FileRequest.Size(m)
+func (m *ConvertFileRequest) XXX_Size() int {
+	return xxx_messageInfo_ConvertFileRequest.Size(m)
 }
-func (m *ConvertS3FileRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_ConvertS3FileRequest.DiscardUnknown(m)
+func (m *ConvertFileRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ConvertFileRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ConvertS3FileRequest proto.InternalMessageInfo
+var xxx_messageInfo_ConvertFileRequest proto.InternalMessageInfo
 
-func (m *ConvertS3FileRequest) GetSourceBucket() string {
+func (m *ConvertFileRequest) GetSourceUrl() string {
 	if m != nil {
-		return m.SourceBucket
+		return m.SourceUrl
 	}
 	return ""
 }
 
-func (m *ConvertS3FileRequest) GetSourceKey() string {
-	if m != nil {
-		return m.SourceKey
-	}
-	return ""
-}
-
-func (m *ConvertS3FileRequest) GetDestBucket() string {
-	if m != nil {
-		return m.DestBucket
-	}
-	return ""
-}
-
-func (m *ConvertS3FileRequest) GetDestKey() string {
-	if m != nil {
-		return m.DestKey
-	}
-	return ""
-}
-
-func (m *ConvertS3FileRequest) GetSourceEncoding() Encoding {
+func (m *ConvertFileRequest) GetSourceEncoding() Encoding {
 	if m != nil {
 		return m.SourceEncoding
 	}
 	return Encoding_WAV
 }
 
-func (m *ConvertS3FileRequest) GetDestEncoding() Encoding {
+func (m *ConvertFileRequest) GetDestEncoding() Encoding {
 	if m != nil {
 		return m.DestEncoding
 	}
@@ -173,89 +149,89 @@ func (m *ConvertS3FileRequest) GetDestEncoding() Encoding {
 //
 // A response returned from convert file indicating
 // whether the request was accepted, and a unique identifier
-type ConvertS3FileResponse struct {
-	Accepted             bool     `protobuf:"varint,1,opt,name=accepted,proto3" json:"accepted,omitempty"`
-	Id                   string   `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+type ConvertFileResponse struct {
+	Id                   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Accepted             bool     `protobuf:"varint,2,opt,name=accepted,proto3" json:"accepted,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ConvertS3FileResponse) Reset()         { *m = ConvertS3FileResponse{} }
-func (m *ConvertS3FileResponse) String() string { return proto.CompactTextString(m) }
-func (*ConvertS3FileResponse) ProtoMessage()    {}
-func (*ConvertS3FileResponse) Descriptor() ([]byte, []int) {
+func (m *ConvertFileResponse) Reset()         { *m = ConvertFileResponse{} }
+func (m *ConvertFileResponse) String() string { return proto.CompactTextString(m) }
+func (*ConvertFileResponse) ProtoMessage()    {}
+func (*ConvertFileResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_28744cb449e70622, []int{1}
 }
 
-func (m *ConvertS3FileResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ConvertS3FileResponse.Unmarshal(m, b)
+func (m *ConvertFileResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ConvertFileResponse.Unmarshal(m, b)
 }
-func (m *ConvertS3FileResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ConvertS3FileResponse.Marshal(b, m, deterministic)
+func (m *ConvertFileResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ConvertFileResponse.Marshal(b, m, deterministic)
 }
-func (m *ConvertS3FileResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ConvertS3FileResponse.Merge(m, src)
+func (m *ConvertFileResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ConvertFileResponse.Merge(m, src)
 }
-func (m *ConvertS3FileResponse) XXX_Size() int {
-	return xxx_messageInfo_ConvertS3FileResponse.Size(m)
+func (m *ConvertFileResponse) XXX_Size() int {
+	return xxx_messageInfo_ConvertFileResponse.Size(m)
 }
-func (m *ConvertS3FileResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_ConvertS3FileResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_ConvertS3FileResponse proto.InternalMessageInfo
-
-func (m *ConvertS3FileResponse) GetAccepted() bool {
-	if m != nil {
-		return m.Accepted
-	}
-	return false
+func (m *ConvertFileResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ConvertFileResponse.DiscardUnknown(m)
 }
 
-func (m *ConvertS3FileResponse) GetId() string {
+var xxx_messageInfo_ConvertFileResponse proto.InternalMessageInfo
+
+func (m *ConvertFileResponse) GetId() string {
 	if m != nil {
 		return m.Id
 	}
 	return ""
 }
 
+func (m *ConvertFileResponse) GetAccepted() bool {
+	if m != nil {
+		return m.Accepted
+	}
+	return false
+}
+
 //
 // A request to the Converter service to lookup
 // the status of a job
-type ConvertS3FileQueryRequest struct {
+type ConvertFileQueryRequest struct {
 	Id                   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ConvertS3FileQueryRequest) Reset()         { *m = ConvertS3FileQueryRequest{} }
-func (m *ConvertS3FileQueryRequest) String() string { return proto.CompactTextString(m) }
-func (*ConvertS3FileQueryRequest) ProtoMessage()    {}
-func (*ConvertS3FileQueryRequest) Descriptor() ([]byte, []int) {
+func (m *ConvertFileQueryRequest) Reset()         { *m = ConvertFileQueryRequest{} }
+func (m *ConvertFileQueryRequest) String() string { return proto.CompactTextString(m) }
+func (*ConvertFileQueryRequest) ProtoMessage()    {}
+func (*ConvertFileQueryRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_28744cb449e70622, []int{2}
 }
 
-func (m *ConvertS3FileQueryRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ConvertS3FileQueryRequest.Unmarshal(m, b)
+func (m *ConvertFileQueryRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ConvertFileQueryRequest.Unmarshal(m, b)
 }
-func (m *ConvertS3FileQueryRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ConvertS3FileQueryRequest.Marshal(b, m, deterministic)
+func (m *ConvertFileQueryRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ConvertFileQueryRequest.Marshal(b, m, deterministic)
 }
-func (m *ConvertS3FileQueryRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ConvertS3FileQueryRequest.Merge(m, src)
+func (m *ConvertFileQueryRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ConvertFileQueryRequest.Merge(m, src)
 }
-func (m *ConvertS3FileQueryRequest) XXX_Size() int {
-	return xxx_messageInfo_ConvertS3FileQueryRequest.Size(m)
+func (m *ConvertFileQueryRequest) XXX_Size() int {
+	return xxx_messageInfo_ConvertFileQueryRequest.Size(m)
 }
-func (m *ConvertS3FileQueryRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_ConvertS3FileQueryRequest.DiscardUnknown(m)
+func (m *ConvertFileQueryRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ConvertFileQueryRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ConvertS3FileQueryRequest proto.InternalMessageInfo
+var xxx_messageInfo_ConvertFileQueryRequest proto.InternalMessageInfo
 
-func (m *ConvertS3FileQueryRequest) GetId() string {
+func (m *ConvertFileQueryRequest) GetId() string {
 	if m != nil {
 		return m.Id
 	}
@@ -265,51 +241,59 @@ func (m *ConvertS3FileQueryRequest) GetId() string {
 //
 // A response from the Converter service that contains
 // the id of the job, and its current status
-type ConvertS3FileQueryResponse struct {
-	Id                   string                            `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Status               ConvertS3FileQueryResponse_Status `protobuf:"varint,2,opt,name=status,proto3,enum=pb.ConvertS3FileQueryResponse_Status" json:"status,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}                          `json:"-"`
-	XXX_unrecognized     []byte                            `json:"-"`
-	XXX_sizecache        int32                             `json:"-"`
+type ConvertFileQueryResponse struct {
+	Id                   string                          `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Status               ConvertFileQueryResponse_Status `protobuf:"varint,2,opt,name=status,proto3,enum=pb.ConvertFileQueryResponse_Status" json:"status,omitempty"`
+	Url                  string                          `protobuf:"bytes,3,opt,name=url,proto3" json:"url,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                        `json:"-"`
+	XXX_unrecognized     []byte                          `json:"-"`
+	XXX_sizecache        int32                           `json:"-"`
 }
 
-func (m *ConvertS3FileQueryResponse) Reset()         { *m = ConvertS3FileQueryResponse{} }
-func (m *ConvertS3FileQueryResponse) String() string { return proto.CompactTextString(m) }
-func (*ConvertS3FileQueryResponse) ProtoMessage()    {}
-func (*ConvertS3FileQueryResponse) Descriptor() ([]byte, []int) {
+func (m *ConvertFileQueryResponse) Reset()         { *m = ConvertFileQueryResponse{} }
+func (m *ConvertFileQueryResponse) String() string { return proto.CompactTextString(m) }
+func (*ConvertFileQueryResponse) ProtoMessage()    {}
+func (*ConvertFileQueryResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_28744cb449e70622, []int{3}
 }
 
-func (m *ConvertS3FileQueryResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ConvertS3FileQueryResponse.Unmarshal(m, b)
+func (m *ConvertFileQueryResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ConvertFileQueryResponse.Unmarshal(m, b)
 }
-func (m *ConvertS3FileQueryResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ConvertS3FileQueryResponse.Marshal(b, m, deterministic)
+func (m *ConvertFileQueryResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ConvertFileQueryResponse.Marshal(b, m, deterministic)
 }
-func (m *ConvertS3FileQueryResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ConvertS3FileQueryResponse.Merge(m, src)
+func (m *ConvertFileQueryResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ConvertFileQueryResponse.Merge(m, src)
 }
-func (m *ConvertS3FileQueryResponse) XXX_Size() int {
-	return xxx_messageInfo_ConvertS3FileQueryResponse.Size(m)
+func (m *ConvertFileQueryResponse) XXX_Size() int {
+	return xxx_messageInfo_ConvertFileQueryResponse.Size(m)
 }
-func (m *ConvertS3FileQueryResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_ConvertS3FileQueryResponse.DiscardUnknown(m)
+func (m *ConvertFileQueryResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ConvertFileQueryResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ConvertS3FileQueryResponse proto.InternalMessageInfo
+var xxx_messageInfo_ConvertFileQueryResponse proto.InternalMessageInfo
 
-func (m *ConvertS3FileQueryResponse) GetId() string {
+func (m *ConvertFileQueryResponse) GetId() string {
 	if m != nil {
 		return m.Id
 	}
 	return ""
 }
 
-func (m *ConvertS3FileQueryResponse) GetStatus() ConvertS3FileQueryResponse_Status {
+func (m *ConvertFileQueryResponse) GetStatus() ConvertFileQueryResponse_Status {
 	if m != nil {
 		return m.Status
 	}
-	return ConvertS3FileQueryResponse_QUEUED
+	return ConvertFileQueryResponse_QUEUED
+}
+
+func (m *ConvertFileQueryResponse) GetUrl() string {
+	if m != nil {
+		return m.Url
+	}
+	return ""
 }
 
 //
@@ -421,11 +405,11 @@ func (m *ConvertStreamResponse) GetEncoding() Encoding {
 
 func init() {
 	proto.RegisterEnum("pb.Encoding", Encoding_name, Encoding_value)
-	proto.RegisterEnum("pb.ConvertS3FileQueryResponse_Status", ConvertS3FileQueryResponse_Status_name, ConvertS3FileQueryResponse_Status_value)
-	proto.RegisterType((*ConvertS3FileRequest)(nil), "pb.ConvertS3FileRequest")
-	proto.RegisterType((*ConvertS3FileResponse)(nil), "pb.ConvertS3FileResponse")
-	proto.RegisterType((*ConvertS3FileQueryRequest)(nil), "pb.ConvertS3FileQueryRequest")
-	proto.RegisterType((*ConvertS3FileQueryResponse)(nil), "pb.ConvertS3FileQueryResponse")
+	proto.RegisterEnum("pb.ConvertFileQueryResponse_Status", ConvertFileQueryResponse_Status_name, ConvertFileQueryResponse_Status_value)
+	proto.RegisterType((*ConvertFileRequest)(nil), "pb.ConvertFileRequest")
+	proto.RegisterType((*ConvertFileResponse)(nil), "pb.ConvertFileResponse")
+	proto.RegisterType((*ConvertFileQueryRequest)(nil), "pb.ConvertFileQueryRequest")
+	proto.RegisterType((*ConvertFileQueryResponse)(nil), "pb.ConvertFileQueryResponse")
 	proto.RegisterType((*ConvertStreamRequest)(nil), "pb.ConvertStreamRequest")
 	proto.RegisterType((*ConvertStreamResponse)(nil), "pb.ConvertStreamResponse")
 }
@@ -435,37 +419,36 @@ func init() {
 }
 
 var fileDescriptor_28744cb449e70622 = []byte{
-	// 471 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x54, 0xdf, 0x6b, 0xd3, 0x50,
-	0x14, 0xde, 0x4d, 0x66, 0x96, 0x1e, 0xda, 0x70, 0x39, 0x28, 0x64, 0x45, 0xc7, 0x08, 0x08, 0x45,
-	0xa1, 0x4a, 0xbb, 0x57, 0x91, 0x9a, 0xa6, 0x32, 0xec, 0x7e, 0xa5, 0xeb, 0x7c, 0x6e, 0x93, 0x33,
-	0x09, 0x6a, 0x13, 0x93, 0x9b, 0xc1, 0xfe, 0x0d, 0xff, 0x0e, 0xff, 0x3b, 0xdf, 0x7c, 0x92, 0xdc,
-	0xdc, 0x66, 0x4d, 0x97, 0x4d, 0xf0, 0xed, 0xfc, 0xf8, 0xce, 0xc9, 0xf7, 0x9d, 0xef, 0x12, 0xe8,
-	0x04, 0xf1, 0xea, 0x86, 0x52, 0xd1, 0x4f, 0xd2, 0x58, 0xc4, 0xa8, 0x25, 0x4b, 0xe7, 0x0f, 0x83,
-	0xa7, 0x6e, 0x59, 0x9d, 0x0d, 0x27, 0xd1, 0x37, 0xf2, 0xe9, 0x47, 0x4e, 0x99, 0x40, 0x07, 0xda,
-	0x59, 0x9c, 0xa7, 0x01, 0x7d, 0xc8, 0x83, 0xaf, 0x24, 0x6c, 0x76, 0xc8, 0x7a, 0x2d, 0xbf, 0x56,
-	0xc3, 0xe7, 0xd0, 0x2a, 0xf3, 0x4f, 0x74, 0x6b, 0x6b, 0x12, 0x70, 0x57, 0xc0, 0x03, 0x80, 0x90,
-	0x32, 0xa1, 0xe6, 0x75, 0xd9, 0xde, 0xa8, 0xa0, 0x0d, 0x7b, 0x45, 0x56, 0xcc, 0xee, 0xca, 0xe6,
-	0x3a, 0xc5, 0x23, 0xb0, 0xca, 0x35, 0xde, 0x2a, 0x88, 0xc3, 0x68, 0xf5, 0xc5, 0x7e, 0x72, 0xc8,
-	0x7a, 0xd6, 0xa0, 0xdd, 0x4f, 0x96, 0xfd, 0x75, 0xcd, 0xdf, 0xc2, 0xe0, 0x5b, 0x68, 0x17, 0x0b,
-	0xaa, 0x19, 0xa3, 0x61, 0xa6, 0x86, 0x70, 0x5c, 0x78, 0xb6, 0xa5, 0x3d, 0x4b, 0xe2, 0x55, 0x46,
-	0xd8, 0x05, 0x73, 0x11, 0x04, 0x94, 0x08, 0x0a, 0xa5, 0x70, 0xd3, 0xaf, 0x72, 0xb4, 0x40, 0x8b,
-	0x42, 0xa5, 0x56, 0x8b, 0x42, 0xe7, 0x35, 0xec, 0xd7, 0x96, 0x5c, 0xe4, 0x94, 0xde, 0xae, 0xaf,
-	0x58, 0x82, 0x59, 0x05, 0xfe, 0xc5, 0xa0, 0xdb, 0x84, 0x56, 0xdf, 0xdd, 0x82, 0xe3, 0x3b, 0x30,
-	0x32, 0xb1, 0x10, 0x79, 0x26, 0xbf, 0x67, 0x0d, 0x5e, 0x16, 0x62, 0x1e, 0x9e, 0xef, 0xcf, 0x24,
-	0xd8, 0x57, 0x43, 0xce, 0x7b, 0x30, 0xca, 0x0a, 0x02, 0x18, 0x17, 0x73, 0x6f, 0xee, 0x8d, 0xf9,
-	0x0e, 0x5a, 0x00, 0xee, 0xd9, 0xe9, 0x95, 0xe7, 0x5f, 0x1e, 0x9f, 0x7e, 0xe4, 0x0c, 0x3b, 0xd0,
-	0x72, 0xcf, 0x4e, 0xce, 0xa7, 0xde, 0xa5, 0x37, 0xe6, 0x5a, 0x01, 0x9d, 0x8c, 0x8e, 0xa7, 0xde,
-	0x98, 0xeb, 0xce, 0xcf, 0x8d, 0xd7, 0x21, 0x52, 0x5a, 0x7c, 0x5f, 0xeb, 0x42, 0xd8, 0x5d, 0xe6,
-	0xd7, 0xd7, 0x92, 0x6a, 0xdb, 0x97, 0x71, 0x83, 0x6b, 0xda, 0x7f, 0xb8, 0xa6, 0xff, 0xd3, 0xb5,
-	0xf9, 0x9d, 0x6b, 0x8a, 0x93, 0xba, 0x5e, 0x13, 0xa9, 0x1e, 0x98, 0xf4, 0x18, 0x9d, 0xaa, 0xfb,
-	0xea, 0x0d, 0x98, 0x15, 0xa9, 0x3d, 0xd0, 0x3f, 0x8f, 0xae, 0xf8, 0x4e, 0x11, 0x9c, 0x1c, 0x8d,
-	0x38, 0x93, 0xc1, 0xf9, 0x90, 0x6b, 0x68, 0xc2, 0xee, 0x64, 0x3a, 0x72, 0xb9, 0x3e, 0xf8, 0xcd,
-	0x80, 0x2b, 0x22, 0x94, 0xce, 0x28, 0xbd, 0x89, 0x02, 0xc2, 0x31, 0x74, 0x6a, 0xfe, 0xa0, 0x7d,
-	0xcf, 0x32, 0x75, 0xc3, 0xee, 0x7e, 0x43, 0x47, 0x29, 0x99, 0x01, 0xde, 0x77, 0x19, 0x5f, 0x3c,
-	0xe4, 0x7e, 0xb9, 0xef, 0xe0, 0xf1, 0xc7, 0xb1, 0x49, 0x4d, 0xde, 0xad, 0x4e, 0x6d, 0xd3, 0xde,
-	0x3a, 0xb5, 0xda, 0x91, 0x97, 0x86, 0xfc, 0x77, 0x0c, 0xff, 0x06, 0x00, 0x00, 0xff, 0xff, 0x3c,
-	0x0f, 0x08, 0xd2, 0x4c, 0x04, 0x00, 0x00,
+	// 450 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x53, 0xcd, 0x6e, 0x9b, 0x40,
+	0x10, 0xce, 0x42, 0x44, 0xf0, 0xd4, 0x46, 0xab, 0xe9, 0x4f, 0xa8, 0x9b, 0x83, 0x45, 0x2f, 0x6e,
+	0x0f, 0x6e, 0xe5, 0xe4, 0x56, 0xa9, 0x15, 0x32, 0xb8, 0x8a, 0x64, 0xe7, 0x07, 0x87, 0xf4, 0x6c,
+	0x60, 0x53, 0x21, 0xb9, 0x40, 0x97, 0x25, 0x52, 0x5f, 0xa3, 0xc7, 0x3e, 0x4a, 0x5f, 0xa8, 0xaf,
+	0x51, 0xf1, 0x63, 0x6a, 0x08, 0x49, 0xa5, 0xdc, 0x66, 0x67, 0xbf, 0xf9, 0xe6, 0x9b, 0xf9, 0x76,
+	0x61, 0xe0, 0xc7, 0xd1, 0x2d, 0xe3, 0x62, 0x92, 0xf0, 0x58, 0xc4, 0x28, 0x25, 0x9e, 0xf1, 0x8b,
+	0x00, 0xce, 0xca, 0xec, 0x3c, 0xdc, 0x30, 0x87, 0x7d, 0xcf, 0x58, 0x2a, 0xf0, 0x08, 0x7a, 0x69,
+	0x9c, 0x71, 0x9f, 0xb9, 0x7c, 0xa3, 0x93, 0x11, 0x19, 0xf7, 0x9c, 0x7f, 0x09, 0x3c, 0x01, 0xad,
+	0x3c, 0xd8, 0x91, 0x1f, 0x07, 0x61, 0xf4, 0x55, 0x57, 0x46, 0x64, 0xac, 0x4d, 0xfb, 0x93, 0xc4,
+	0x9b, 0x6c, 0x73, 0x4e, 0x0b, 0x83, 0xef, 0xa1, 0x1f, 0xb0, 0x54, 0xd4, 0x35, 0x07, 0x1d, 0x35,
+	0x0d, 0x84, 0x61, 0xc2, 0xd3, 0x86, 0xb6, 0x34, 0x89, 0xa3, 0x94, 0xa1, 0x06, 0x52, 0x18, 0x54,
+	0xaa, 0xa4, 0x30, 0xc0, 0x21, 0xa8, 0x6b, 0xdf, 0x67, 0x89, 0x60, 0x81, 0x2e, 0x8d, 0xc8, 0x58,
+	0x75, 0xea, 0xb3, 0xf1, 0x06, 0x0e, 0x77, 0x28, 0x2e, 0x33, 0xc6, 0x7f, 0x6c, 0x67, 0x6c, 0xd1,
+	0x18, 0xbf, 0x09, 0xe8, 0x77, 0xb1, 0xf7, 0xf4, 0xfc, 0x00, 0x4a, 0x2a, 0xd6, 0x22, 0x4b, 0x8b,
+	0x8e, 0xda, 0xf4, 0x75, 0x3e, 0xc6, 0x7d, 0xd5, 0x93, 0x55, 0x01, 0x75, 0xaa, 0x12, 0xa4, 0x20,
+	0x67, 0x7c, 0xa3, 0xcb, 0x05, 0x5b, 0x1e, 0x1a, 0x9f, 0x40, 0x29, 0x31, 0x08, 0xa0, 0x5c, 0xba,
+	0xb6, 0x6b, 0x5b, 0x74, 0x0f, 0x35, 0x80, 0xd9, 0xf9, 0xd9, 0xb5, 0xed, 0x5c, 0x9d, 0x9e, 0x7d,
+	0xa6, 0x04, 0x07, 0xd0, 0x9b, 0x9d, 0x2f, 0x2f, 0x16, 0xf6, 0x95, 0x6d, 0x51, 0x29, 0x87, 0xce,
+	0xcd, 0xd3, 0x85, 0x6d, 0x51, 0xd9, 0xf8, 0x49, 0xe0, 0x59, 0xd5, 0x7e, 0x25, 0x38, 0x5b, 0x7f,
+	0xdb, 0x4e, 0x89, 0xb0, 0xef, 0x65, 0x37, 0x37, 0x85, 0xf4, 0xbe, 0x53, 0xc4, 0x1d, 0xfe, 0x49,
+	0x8f, 0xf0, 0x4f, 0xfe, 0xaf, 0x7f, 0x2e, 0x3c, 0x6f, 0x69, 0xaa, 0xb6, 0xd9, 0x25, 0x6a, 0x0c,
+	0x2a, 0x7b, 0x48, 0x4e, 0x7d, 0xfb, 0xf6, 0x1d, 0xa8, 0xb5, 0xa8, 0x03, 0x90, 0xbf, 0x98, 0xd7,
+	0x74, 0x2f, 0x0f, 0x96, 0x27, 0x26, 0x25, 0x45, 0x70, 0x71, 0x4c, 0x25, 0x54, 0x61, 0x7f, 0xbe,
+	0x30, 0x67, 0x54, 0x9e, 0xfe, 0x21, 0x40, 0x2b, 0x21, 0x8c, 0xaf, 0x18, 0xbf, 0x0d, 0x7d, 0x86,
+	0x1f, 0xe1, 0xc9, 0x8e, 0x5f, 0xf8, 0xa2, 0x65, 0x60, 0xb5, 0xbf, 0xe1, 0xe1, 0x9d, 0x7c, 0x35,
+	0xc3, 0xb2, 0xe6, 0xac, 0xfd, 0xc6, 0x57, 0xdd, 0xaf, 0xa0, 0x64, 0x3a, 0x7a, 0xe8, 0x89, 0xa0,
+	0x05, 0x83, 0xc6, 0xae, 0x50, 0xdf, 0x81, 0x37, 0x2c, 0x1d, 0xbe, 0xec, 0xb8, 0x29, 0x59, 0x3c,
+	0xa5, 0xf8, 0xd9, 0xc7, 0x7f, 0x03, 0x00, 0x00, 0xff, 0xff, 0xb5, 0x42, 0x3a, 0x08, 0xea, 0x03,
+	0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -482,10 +465,10 @@ const _ = grpc.SupportPackageIsVersion6
 type ConverterServiceClient interface {
 	//
 	// Create a file encoding conversion job from S3
-	ConvertS3File(ctx context.Context, in *ConvertS3FileRequest, opts ...grpc.CallOption) (*ConvertS3FileResponse, error)
+	ConvertFile(ctx context.Context, in *ConvertFileRequest, opts ...grpc.CallOption) (*ConvertFileResponse, error)
 	//
 	// Lookup the status of a job
-	ConvertS3FileQuery(ctx context.Context, in *ConvertS3FileQueryRequest, opts ...grpc.CallOption) (*ConvertS3FileQueryResponse, error)
+	ConvertFileQuery(ctx context.Context, in *ConvertFileQueryRequest, opts ...grpc.CallOption) (*ConvertFileQueryResponse, error)
 	//
 	// Stream an audio file to the conversion service for real-time conversion
 	ConvertStream(ctx context.Context, in *ConvertStreamRequest, opts ...grpc.CallOption) (*ConvertStreamResponse, error)
@@ -499,18 +482,18 @@ func NewConverterServiceClient(cc grpc.ClientConnInterface) ConverterServiceClie
 	return &converterServiceClient{cc}
 }
 
-func (c *converterServiceClient) ConvertS3File(ctx context.Context, in *ConvertS3FileRequest, opts ...grpc.CallOption) (*ConvertS3FileResponse, error) {
-	out := new(ConvertS3FileResponse)
-	err := c.cc.Invoke(ctx, "/pb.ConverterService/ConvertS3File", in, out, opts...)
+func (c *converterServiceClient) ConvertFile(ctx context.Context, in *ConvertFileRequest, opts ...grpc.CallOption) (*ConvertFileResponse, error) {
+	out := new(ConvertFileResponse)
+	err := c.cc.Invoke(ctx, "/pb.ConverterService/ConvertFile", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *converterServiceClient) ConvertS3FileQuery(ctx context.Context, in *ConvertS3FileQueryRequest, opts ...grpc.CallOption) (*ConvertS3FileQueryResponse, error) {
-	out := new(ConvertS3FileQueryResponse)
-	err := c.cc.Invoke(ctx, "/pb.ConverterService/ConvertS3FileQuery", in, out, opts...)
+func (c *converterServiceClient) ConvertFileQuery(ctx context.Context, in *ConvertFileQueryRequest, opts ...grpc.CallOption) (*ConvertFileQueryResponse, error) {
+	out := new(ConvertFileQueryResponse)
+	err := c.cc.Invoke(ctx, "/pb.ConverterService/ConvertFileQuery", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -530,10 +513,10 @@ func (c *converterServiceClient) ConvertStream(ctx context.Context, in *ConvertS
 type ConverterServiceServer interface {
 	//
 	// Create a file encoding conversion job from S3
-	ConvertS3File(context.Context, *ConvertS3FileRequest) (*ConvertS3FileResponse, error)
+	ConvertFile(context.Context, *ConvertFileRequest) (*ConvertFileResponse, error)
 	//
 	// Lookup the status of a job
-	ConvertS3FileQuery(context.Context, *ConvertS3FileQueryRequest) (*ConvertS3FileQueryResponse, error)
+	ConvertFileQuery(context.Context, *ConvertFileQueryRequest) (*ConvertFileQueryResponse, error)
 	//
 	// Stream an audio file to the conversion service for real-time conversion
 	ConvertStream(context.Context, *ConvertStreamRequest) (*ConvertStreamResponse, error)
@@ -543,11 +526,11 @@ type ConverterServiceServer interface {
 type UnimplementedConverterServiceServer struct {
 }
 
-func (*UnimplementedConverterServiceServer) ConvertS3File(ctx context.Context, req *ConvertS3FileRequest) (*ConvertS3FileResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ConvertS3File not implemented")
+func (*UnimplementedConverterServiceServer) ConvertFile(ctx context.Context, req *ConvertFileRequest) (*ConvertFileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ConvertFile not implemented")
 }
-func (*UnimplementedConverterServiceServer) ConvertS3FileQuery(ctx context.Context, req *ConvertS3FileQueryRequest) (*ConvertS3FileQueryResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ConvertS3FileQuery not implemented")
+func (*UnimplementedConverterServiceServer) ConvertFileQuery(ctx context.Context, req *ConvertFileQueryRequest) (*ConvertFileQueryResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ConvertFileQuery not implemented")
 }
 func (*UnimplementedConverterServiceServer) ConvertStream(ctx context.Context, req *ConvertStreamRequest) (*ConvertStreamResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ConvertStream not implemented")
@@ -557,38 +540,38 @@ func RegisterConverterServiceServer(s *grpc.Server, srv ConverterServiceServer) 
 	s.RegisterService(&_ConverterService_serviceDesc, srv)
 }
 
-func _ConverterService_ConvertS3File_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ConvertS3FileRequest)
+func _ConverterService_ConvertFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConvertFileRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ConverterServiceServer).ConvertS3File(ctx, in)
+		return srv.(ConverterServiceServer).ConvertFile(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/pb.ConverterService/ConvertS3File",
+		FullMethod: "/pb.ConverterService/ConvertFile",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ConverterServiceServer).ConvertS3File(ctx, req.(*ConvertS3FileRequest))
+		return srv.(ConverterServiceServer).ConvertFile(ctx, req.(*ConvertFileRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ConverterService_ConvertS3FileQuery_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ConvertS3FileQueryRequest)
+func _ConverterService_ConvertFileQuery_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConvertFileQueryRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ConverterServiceServer).ConvertS3FileQuery(ctx, in)
+		return srv.(ConverterServiceServer).ConvertFileQuery(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/pb.ConverterService/ConvertS3FileQuery",
+		FullMethod: "/pb.ConverterService/ConvertFileQuery",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ConverterServiceServer).ConvertS3FileQuery(ctx, req.(*ConvertS3FileQueryRequest))
+		return srv.(ConverterServiceServer).ConvertFileQuery(ctx, req.(*ConvertFileQueryRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -616,12 +599,12 @@ var _ConverterService_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*ConverterServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ConvertS3File",
-			Handler:    _ConverterService_ConvertS3File_Handler,
+			MethodName: "ConvertFile",
+			Handler:    _ConverterService_ConvertFile_Handler,
 		},
 		{
-			MethodName: "ConvertS3FileQuery",
-			Handler:    _ConverterService_ConvertS3FileQuery_Handler,
+			MethodName: "ConvertFileQuery",
+			Handler:    _ConverterService_ConvertFileQuery_Handler,
 		},
 		{
 			MethodName: "ConvertStream",
