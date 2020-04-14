@@ -1,0 +1,32 @@
+#!/bin/bash
+
+echo -e "Run\n"
+while true; do
+  echo "Pick a routine"
+  echo -e "\t 1) Deploy Local"
+  echo -e "\t 2) Deploy Online"
+  echo -e "\t 3) Destroy"
+  echo -e "\t 4) Run"
+  echo -e "\t 5) Quit"
+  read -r response
+  case "$response" in
+    1)
+      terraform apply -var-file="terraform-local.tfvars"
+      ;;
+    2)
+      terraform apply -var-file="terraform.tfvars"
+      ;;
+    3)
+      terraform destroy
+      ;;
+    4)
+      go run . --port=3000 & go run ./restinterface
+      ;;
+    5)
+      exit 0
+      ;;
+    *)
+      echo "Invalid input $response"
+      ;;
+  esac
+done

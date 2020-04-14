@@ -139,3 +139,6 @@ Temporary Items
 
 # End of https://www.gitignore.io/api/go,macos,intellij+all
 .env
+*.tfvars
+*.tfstate*
+.terraform

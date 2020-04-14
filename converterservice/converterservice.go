@@ -15,6 +15,21 @@ type server struct {
 	fileConverter *FileConverter
 }
 
+func newConfiguration() FileConverterConfiguration {
+	bucketName := os.Getenv("BUCKET_NAME")
+	s3endpoint := os.Getenv("S3_ENDPOINT")
+	region     := os.Getenv("REGION")
+	dbUser     := os.Getenv("POSTGRES_USER")
+	dbPass     := os.Getenv("POSTGRES_PASSWORD")
+	return FileConverterConfiguration{
+		bucketName: bucketName,
+		s3endpoint: s3endpoint,
+		region:     region,
+		dbUser:     dbUser,
+		dbPass:     dbPass,
+	}
+}
+
 func NewConverterService(port int) {
 	log.Println("Starting service...")
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
@@ -23,7 +38,7 @@ func NewConverterService(port int) {
 	}
 	s := grpc.NewServer()
 	pb.RegisterConverterServiceServer(s, &server{
-		fileConverter: NewFileConverter(os.Getenv("S3_ENDPOINT")),
+		fileConverter: NewFileConverter(newConfiguration()),
 	})
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("Failure! %v", err)
@@ -31,7 +46,6 @@ func NewConverterService(port int) {
 }
 
 func (s *server) ConvertFile(ctx context.Context, req *pb.ConvertFileRequest) (*pb.ConvertFileResponse, error) {
-	// TODO: Create the ID for the request
 	uuid := uuid.New().String()
 	go s.fileConverter.ConvertFile(req, uuid)
 	return &pb.ConvertFileResponse{Accepted: true, Id: uuid}, nil
@@ -39,7 +53,6 @@ func (s *server) ConvertFile(ctx context.Context, req *pb.ConvertFileRequest) (*
 
 func (s *server) ConvertFileQuery(ctx context.Context, req *pb.ConvertFileQueryRequest) (*pb.ConvertFileQueryResponse, error) {
 	// TODO: stub
-	log.Println("HERE")
 	return &pb.ConvertFileQueryResponse{Id: "ID", Status: 3}, nil
 }
 
