@@ -11,7 +11,8 @@ while true; do
   read -r response
   case "$response" in
     1)
-      terraform apply -var-file="terraform-local.tfvars"
+      terraform apply -var-file="terraform-local.tfvars" \
+        -var-file="terraform.tfvars"
       ;;
     2)
       terraform apply -var-file="terraform.tfvars"
