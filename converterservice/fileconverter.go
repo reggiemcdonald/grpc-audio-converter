@@ -114,6 +114,7 @@ func (f *FileConverter) ConvertFile(req *pb.ConvertFileRequest, id string) {
 		Bucket: aws.String(f.bucketName),
 		Key:    aws.String(id),
 		Body:   file,
+		ContentType: aws.String(fmt.Sprintf("audio/%s", destEncoding)),
 	}); err != nil {
 		log.Printf("failed to upload converted audio to S3, ecnountered %v", err)
 	}
