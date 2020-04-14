@@ -6,7 +6,7 @@ and converted to the desired format before being uploaded to an S3 bucket. The c
 is persisted for 24h, during which the user can request a presigned GET url 
 to the object.
 
-#### A not on gRPC and Protocol Buffers
+#### A note on gRPC and Protocol Buffers
 The audio conversion microservice uses gRPC and Protocol Buffers for communication.
 gRPC provides a convenient and performant interface for communication between microservices.
 Protocol Buffers allow for a language-agnostic interface to facilitate gRPC.
