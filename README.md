@@ -1,4 +1,4 @@
-### A gRPC Microservice for Converting Audio
+### A gRPC Microservice for Audio Encoding Conversion
 
 #### Environment Variables:
 - The microservice saves audio to a specified S3 bucket, and so the following 
