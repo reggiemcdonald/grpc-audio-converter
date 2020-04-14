@@ -19,14 +19,16 @@ Terraform is used to deploy the necessary S3 bucket
 
 1. Clone the repo 
 2. Install `terraform cli`, `aws cli`, and `ffmpeg`
-3. In the project root, `docker-compose up -d` to start the database
-4. If you do not have an AWS configuration for the CLI, you may create one with `aws configure`
+3. Create `.env` and add `POSTGRES_USER`, `POSTGRES_PASSWORD` with values of your choosing. Add `REGION` and specify the AWS region that you plan on deploying to
+4. In the project root, `docker-compose up -d` to start the database
+5. If you do not have an AWS configuration for the CLI, you may create one with `aws configure`
     - Optionally, add `AWS_ACCESS_KEY` and `AWS_SECRET_KEY` to the `terraform.tfvars` and `.env` files instead
-5. Decide whether to deploy the S3 bucket locally or online: 
+6. Decide whether to deploy the S3 bucket locally or online: 
     - You can deploy locally if you have `localstack` running
-6. Run `./run` and select the appropriate deploy. You will need to say `yes`
-7. The bucket name will be shown once complete, add this as a line in a `.env`:
+    - If your region specified in step 3 is different than `us-west-2`, then specify this region in `terraform.tfvars`
+7. Run `./run` and select the appropriate deploy. You will need to say `yes`
+8. The bucket name will be shown once complete, add this as a line in a `.env`:
     - `BUCKET_NAME=<paste name here>`
-8. Select the run option
-9. The converter service will be running on :3000, the rest interface on :4000 and the database
+9. Select the run option
+10. The converter service will be running on :3000, the rest interface on :4000 and the database
 on :5432
