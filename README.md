@@ -24,9 +24,9 @@ Terraform is used to deploy the necessary S3 bucket
     - Optionally, add `AWS_ACCESS_KEY` and `AWS_SECRET_KEY` to the `terraform.tfvars` and `.env` files instead
 5. Decide whether to deploy the S3 bucket locally or online: 
     - You can deploy locally if you have `localstack` running
-6. Select the appropriate deploy, you must say `yes`
+6. Run `./run` and select the appropriate deploy. You will need to say `yes`
 7. The bucket name will be shown once complete, add this as a line in a `.env`:
     - `BUCKET_NAME=<paste name here>`
-8. Run `./run` and select the deployment option you want. Then run the server
+8. Select the run option
 9. The converter service will be running on :3000, the rest interface on :4000 and the database
 on :5432
