@@ -43,5 +43,11 @@ provider "aws" {
 resource "aws_s3_bucket" "audio-bucket" {
   bucket = "converted-audio-${uuid()}"
   acl    = "private"
+  lifecycle_rule {
+    enabled = true
+    expiration {
+      days = 1
+    }
+  }
 }
 
