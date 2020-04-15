@@ -1,5 +1,13 @@
 ### A gRPC Microservice for Audio Encoding Conversion
 
+#### TODOs
+- [x] Ability to convert full files from public URL
+- [x] Ability to retrieve status updates and presigned URL when complete
+- [ ] Converting buffers? (would only work for audio that doesn't need seekable files)
+- [ ] Limiting concurrency, channel listeners
+- [ ] Complete dockerization
+- [ ] Proper instructions on use (partially complete, but will be changing fast)
+
 #### What is it? 
 This microservice provides audio file conversion, where a public URL is provided
 and converted to the desired format before being uploaded to an S3 bucket. The converted audio
