@@ -142,3 +142,6 @@ Temporary Items
 terraform.tfvars
 *.tfstate*
 .terraform
+
+# Files from protobuff output
+pb/*.pb.*
