@@ -6,6 +6,14 @@ and converted to the desired format before being uploaded to an S3 bucket. The c
 is persisted for 24h, during which the user can request a presigned GET url 
 to the object.
 
+#### Supported Formats
+The list is going to be a lot bigger shortly once I update the ProtoBuff. Currently supported encodings are:
+- WAV
+- M4A
+- MP3
+- FLAC
+Again, since audio conversion is done through the FFMPEG tool, this list will get longer shortly (or become a link to the FFMPEG docs).
+
 #### A note on gRPC and Protocol Buffers
 The audio conversion microservice uses gRPC and Protocol Buffers for communication.
 gRPC provides a convenient and performant interface for communication between microservices.
