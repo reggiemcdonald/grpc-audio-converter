@@ -1,35 +1,74 @@
 ### A gRPC Microservice for Audio Encoding Conversion
 
+### What is it? 
+This microservice provides audio file conversion, where a public URL is provided
+and converted to the desired format before being uploaded to an S3 bucket. The converted audio
+is persisted for 24h, during which the user can request a presigned GET url 
+to the object.
+
+Its still a work in progress - see next section.
 #### TODOs
 - [x] Ability to convert full files from public URL
 - [x] Ability to retrieve status updates and presigned URL when complete
 - [ ] Converting buffers? (would only work for audio that doesn't need seekable files)
 - [ ] Limiting concurrency, channel listeners
 - [ ] Complete dockerization
-- [ ] Proper instructions on use (partially complete, but will be changing fast)
+- [ ] Proper instructions on use (will post once I get the docker containers setup)
 
-#### What is it? 
-This microservice provides audio file conversion, where a public URL is provided
-and converted to the desired format before being uploaded to an S3 bucket. The converted audio
-is persisted for 24h, during which the user can request a presigned GET url 
-to the object.
-
-#### Supported Formats
+### Supported Encodings
 The list is going to be a lot bigger shortly once I update the ProtoBuff. Currently supported encodings are:
 - WAV
 - M4A
 - MP3
 - FLAC
+
 Again, since audio conversion is done through the FFMPEG tool, this list will get longer shortly (or become a link to the FFMPEG docs).
 
-#### A note on gRPC and Protocol Buffers
+### A note on gRPC and Protocol Buffers
 The audio conversion microservice uses gRPC and Protocol Buffers for communication.
 gRPC provides a convenient and performant interface for communication between microservices.
-Protocol Buffers allow for a language-agnostic interface to facilitate gRPC.
+Protocol Buffers allow for a language-agnostic interface to facilitate gRPC. Right now I've compiled them for 
+Go, but they can be compiled for different languages.
 
-A REST interface was provided, primarily for local testing.
+A REST interface was provided, primarily for local testing. The endpoints are listed below.
 
-#### Deployment
+### REST Endpoints
+#### `POST /convert-file`: creates a new conversion job.
+Query Params: 
+- `src`: The encoding of the source file
+- `dest`: The desired converted encoding
+
+Body:
+```json
+{
+ "sourceUrl": "<string>"
+}
+``` 
+where:
+- `sourceUrl` is a URL string to download the audio file
+Returns: 
+`202` and the ID of your request on successful call
+---
+#### `GET /convert-file`: Gets the status of a job
+Query params:
+- `id`: The ID of the job
+Returns:
+- `200`
+ ```json
+{
+  "id": "<string>",
+  "status": "<string>",
+  "url": "<string>"
+}
+```
+where:
+- `id`: job ID string
+- `status`: current job status, one of `CONVERTING` | `COMPLETED` | `FAILED`
+    - `QUEUED` status will becoming soon
+- `url`: URL string to dwonload the converted audio - this is a presigned URL
+that is valid for 24h from the time of conversion
+
+### Deployment
 This process will update as I continue to dockerize this microservice. Currently, its relatively manual.
 Terraform is used to deploy the necessary S3 bucket
 
