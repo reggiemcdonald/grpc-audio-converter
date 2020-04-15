@@ -41,7 +41,7 @@ Query Params:
 Body:
 ```json
 {
- "sourceUrl": <string>
+ "sourceUrl": "<string>"
 }
 ``` 
 where:
@@ -56,9 +56,9 @@ Returns:
 - `200`
  ```json
 {
-  "id": <string>,
-  "status": <string>,
-  "url": <string>
+  "id": "<string>",
+  "status": "<string>",
+  "url": "<string>"
 }
 ```
 where:
