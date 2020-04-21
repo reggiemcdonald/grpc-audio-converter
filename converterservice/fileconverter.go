@@ -102,6 +102,9 @@ func (f *FileConverter) ConvertFile(req *pb.ConvertFileRequest, id string) {
 	}
 	if err := cmd.Wait(); err != nil {
 		log.Printf("conversion failed, ecnountered %v", err)
+		if _, err := f.db.FailConversion(id); err != nil {
+			log.Printf("Failed to update job status, encountered %v", err)
+		}
 		return
 	}
 	file, err := os.Open(tmpFile)

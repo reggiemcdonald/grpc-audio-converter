@@ -24,6 +24,7 @@ type ConvertJob struct {
  * Database constants
  */
 const (
+	host       = "converter_db"
 	tableName  = "convert_jobs"
 )
 
@@ -31,7 +32,7 @@ const (
  * FileConverterData constructor
  */
 func NewFileConverterData(dbUser string, dbPass string) *FileConverterData {
-	connstr := fmt.Sprintf("user=%s password=%s sslmode=disable", dbUser, dbPass)
+	connstr := fmt.Sprintf("host=%s user=%s password=%s sslmode=disable", host, dbUser, dbPass)
 	log.Print(connstr)
 	db, err := sql.Open("postgres", connstr)
 	if err != nil {
@@ -77,8 +78,9 @@ func (f *FileConverterData) CompleteConversion(id string, url string) (bool, err
  * Updates the status of the specified file conversion to failed, along with the timestamp of failure
  */
 func (f *FileConverterData) FailConversion(id string) (bool, error) {
-	stmt := fmt.Sprintf("UPDATE %s SET status=$1, last_updated=$2 WHERE id=%3", tableName)
+	stmt := fmt.Sprintf("UPDATE %s SET status=$1, last_updated=$2 WHERE id=$3", tableName)
 	status, lastUpdated := pb.ConvertFileQueryResponse_FAILED.String(), time.Now()
+	fmt.Printf("stmt: %s, status: %s, lastUdated %v id: %s\n", stmt, status, lastUpdated, id);
 	_, err := f.db.Exec(stmt, status, lastUpdated, id)
 	if err != nil {
 		return false, nil

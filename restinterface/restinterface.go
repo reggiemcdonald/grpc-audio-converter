@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/reggiemcdonald/grpc-audio-converter/pb"
 	"google.golang.org/grpc"
@@ -30,8 +31,9 @@ type body struct {
 }
 
 func main() {
-	conn, err := grpc.Dial("localhost:3000", grpc.WithInsecure())
+	conn, err := grpc.Dial("converter:3000", grpc.WithInsecure())
 	if err != nil {
+		fmt.Printf("Encountered error dialing %v", err)
 		log.Fatal("Failed to connect to the grpc service")
 	}
 	client := pb.NewConverterServiceClient(conn)
