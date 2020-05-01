@@ -17,6 +17,8 @@ services:
     ports:
       - 3000:3000
     container_name: audio-converter-service
+    environment:
+      - BUCKET_NAME
   rest_interface:
     build:
       context: .

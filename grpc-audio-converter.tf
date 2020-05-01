@@ -51,3 +51,8 @@ resource "aws_s3_bucket" "audio-bucket" {
   }
 }
 
+output "s3_bucket_id" {
+  value = aws_s3_bucket.audio-bucket.id
+  description = "The ID of the bucket that grpc-audio-converter saves converted files to"
+}
+

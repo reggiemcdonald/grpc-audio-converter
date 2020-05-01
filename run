@@ -19,10 +19,16 @@ while true; do
       terraform destroy
       ;;
     3)
-      docker-compose -f docker-compose.yml up -d
+      BUCKET_NAME=$(terraform output s3_bucket_id || null)
+      if [[ -z $BUCKET_NAME ]]; then
+        echo "S3 has not been deployed. run option 1 first."
+        continue
+      fi
+      export BUCKET_NAME
+      docker-compose -f docker-compose.yml up
       ;;
     4)
-      docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+      docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
       ;;
     5)
       docker-compose down --rm local
