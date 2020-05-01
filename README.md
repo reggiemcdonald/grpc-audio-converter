@@ -81,8 +81,8 @@ Begin by cloning the repo. Once complete, continue with the following steps.
 
 Setup:
 1. Create the `.env` file in the project root directory:
-    - Locate your `AWS_ACCESS_KEY` and add it to the `.env`. Alternatively, you may make up a fake value for this if you only intend to deploy locally.
-    - Locate `AWS_SECRET_KEY` and add it to the `.env`. Alternatively, you may make up a fake value for this if you only intend to deploy locally.
+    - Locate your `AWS_ACCESS_KEY` and add it to the `.env`. Alternatively, you may omit this if you only intend to deploy locally.
+    - Locate `AWS_SECRET_KEY` and add it to the `.env`. Alternatively, you may omit this if you only intend to deploy locally.
     - Create a username for the database, and add it to the `.env` file with the key `POSTGRES_USER` 
     - Create a password for the database, and add it to the `.env` file under the key `POSTGRES_PASSWORD` 
 
