@@ -3,27 +3,40 @@
 echo -e "Run\n"
 while true; do
   echo "Pick a routine"
-  echo -e "\t 1) Deploy Local"
-  echo -e "\t 2) Deploy Online"
-  echo -e "\t 3) Destroy"
-  echo -e "\t 4) Run"
-  echo -e "\t 5) Quit"
+  echo -e "\t 1) Deploy AWS services"
+  echo -e "\t 2) Destroy AWS services"
+  echo -e "\t 3) Build & Run Prod (online s3)"
+  echo -e "\t 4) Build & Run Dev (local s3)"
+  echo -e "\t 5) Stop Prod"
+  echo -e "\t 6) Stop Dev"
+  echo -e "\t 7) Quit"
   read -r response
   case "$response" in
     1)
-      terraform apply -var-file="terraform-local.tfvars" \
-        -var-file="terraform.tfvars"
-      ;;
-    2)
       terraform apply -var-file="terraform.tfvars"
       ;;
-    3)
+    2)
       terraform destroy
       ;;
+    3)
+      BUCKET_NAME=$(terraform output s3_bucket_id || null)
+      if [[ -z $BUCKET_NAME ]]; then
+        echo "S3 has not been deployed. run option 1 first."
+        continue
+      fi
+      export BUCKET_NAME
+      docker-compose -f docker-compose.yml up
+      ;;
     4)
-      go run . --port=3000 & go run ./restinterface
+      docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
       ;;
     5)
+      docker-compose down --rm local
+      ;;
+    6)
+      docker-compose -f docker-compose.yml -f docker-compose.dev.yml down --rm local
+      ;;
+    7)
       exit 0
       ;;
     *)

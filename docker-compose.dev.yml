@@ -1,0 +1,18 @@
+version: '3'
+services:
+  s3_local:
+    build:
+      context: ./docker/s3_local/
+      dockerfile: Dockerfile
+    ports:
+      - 4572:4572
+    environment:
+      - LOCALSTACK_SERVICES=s3
+      - DATA_DIR=/tmp/localstack/data
+  converter:
+    environment:
+      - S3_ENDPOINT=http://s3_local:4572
+      - BUCKET_NAME=converter-service-source
+      - AWS_ACCESS_KEY=abc
+      - AWS_SECRET_KEY=123
+      - DEV=true

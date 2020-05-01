@@ -43,11 +43,17 @@ provider "aws" {
 resource "aws_s3_bucket" "audio-bucket" {
   bucket = "converted-audio-${uuid()}"
   acl    = "private"
+  force_destroy = true
   lifecycle_rule {
     enabled = true
     expiration {
       days = 1
     }
   }
+}
+
+output "s3_bucket_id" {
+  value = aws_s3_bucket.audio-bucket.id
+  description = "The ID of the bucket that grpc-audio-converter saves converted files to"
 }
 

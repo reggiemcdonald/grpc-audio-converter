@@ -22,12 +22,14 @@ func newConfiguration() FileConverterConfiguration {
 	region     := os.Getenv("REGION")
 	dbUser     := os.Getenv("POSTGRES_USER")
 	dbPass     := os.Getenv("POSTGRES_PASSWORD")
+	isDev      := os.Getenv("DEV") == "true"
 	return FileConverterConfiguration{
 		bucketName: bucketName,
 		s3endpoint: s3endpoint,
 		region:     region,
 		dbUser:     dbUser,
 		dbPass:     dbPass,
+		isDev:      isDev,
 	}
 }
 

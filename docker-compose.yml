@@ -1,6 +1,6 @@
 version: '3'
 services:
-  db:
+  converter_db:
     image: postgres
     ports:
       - 5432:5432
@@ -10,3 +10,20 @@ services:
     environment:
       - POSTGRES_PASSWORD
       - POSTGRES_USER
+  converter:
+    build:
+      context: .
+      dockerfile: docker/converterservice/Dockerfile
+    ports:
+      - 3000:3000
+    container_name: audio-converter-service
+    environment:
+      - BUCKET_NAME
+      - PORT=3000
+  rest_interface:
+    build:
+      context: .
+      dockerfile: docker/restinterface/Dockerfile
+    ports:
+      - 4000:4000
+    container_name: audio-converter-rest-interface
