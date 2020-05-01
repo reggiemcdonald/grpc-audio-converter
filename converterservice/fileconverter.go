@@ -12,6 +12,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 	"time"
 )
 
@@ -27,6 +28,7 @@ type FileConverterConfiguration struct {
 	region     string
 	dbUser     string
 	dbPass     string
+	isDev      bool
 }
 
 type FileConverter struct {
@@ -34,6 +36,7 @@ type FileConverter struct {
 	uploader *s3manager.Uploader
 	bucketName string
 	db *FileConverterData
+	isDev bool
 }
 
 func NewFileConverter(config FileConverterConfiguration) *FileConverter {
@@ -48,6 +51,7 @@ func NewFileConverter(config FileConverterConfiguration) *FileConverter {
 		uploader: s3manager.NewUploader(sess),
 		bucketName: config.bucketName,
 		db: db,
+		isDev: config.isDev,
 	}
 }
 
@@ -69,6 +73,11 @@ func (f *FileConverter) signedUrl(id string) (string, error) {
 		Key: aws.String(id),
 	})
 	url, err := req.Presign(24 * time.Hour)
+	if f.isDev {
+		dockerNetworkName := "s3_local"
+		localhost := "localhost"
+		url = strings.Replace(url, dockerNetworkName, localhost, 1)
+	}
 	if err != nil {
 		return "", err
 	}
