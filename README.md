@@ -69,21 +69,38 @@ where:
 that is valid for 24h from the time of conversion
 
 ### Deployment
-This process will update as I continue to dockerize this microservice. Currently, its relatively manual.
-Terraform is used to deploy the necessary S3 bucket
+You will need the following installed:
+- Docker
+- Docker-compose
+- Terraform CLI
 
-1. Clone the repo 
-2. Install `terraform cli`, `aws cli`, and `ffmpeg`
-3. Create `.env` and add `POSTGRES_USER`, `POSTGRES_PASSWORD` with values of your choosing. Add `REGION` and specify the AWS region that you plan on deploying to
-4. In the project root, `docker-compose up -d` to start the database
-5. If you do not have an AWS configuration for the CLI, you may create one with `aws configure`
-    - Optionally, add `AWS_ACCESS_KEY` and `AWS_SECRET_KEY` to the `terraform.tfvars` and `.env` files instead
-6. Decide whether to deploy the S3 bucket locally or online: 
-    - You can deploy locally if you have `localstack` running
-    - If your region specified in step 3 is different than `us-west-2`, then specify this region in `terraform.tfvars`
-7. Run `./run` and select the appropriate deploy. You will need to say `yes`
-8. The bucket name will be shown once complete, add this as a line in a `.env`:
-    - `BUCKET_NAME=<paste name here>`
-9. Select the run option
-10. The converter service will be running on :3000, the rest interface on :4000 and the database
-on :5432
+A dev and prod deployment have been created. The dev deployment runs entirely locally, and does not 
+make use of AWS. The prod deployment creates an S3 storage bucket.
+
+Begin by cloning the repo. Once complete, continue with the following steps.
+
+Setup:
+1. Create the `.env` file in the project root directory:
+    - Locate your `AWS_ACCESS_KEY` and add it to the `.env`. Alternatively, you may make up a fake value for this if you only intend to deploy locally.
+    - Locate `AWS_SECRET_KEY` and add it to the `.env`. Alternatively, you may make up a fake value for this if you only intend to deploy locally.
+    - Create a username for the database, and add it to the `.env` file with the key `POSTGRES_USER` 
+    - Create a password for the database, and add it to the `.env` file under the key `POSTGRES_PASSWORD` 
+
+#### To deploy locally:
+1. `cd` to the project root directory
+2. Run `./run`
+3. Select option (4) to build and run dev
+
+To close, `ctrl+c`. Then select option (6) to remove the images from your docker.
+
+#### To deploy to AWS:
+1. `cd` to the project
+2. If you dont have the AWS CLI installed, then you should create a `terraform.tfvars` file and add `AWS_ACCESS_KEY` 
+and `AWS_SECRET_KEY` to the file
+3. The default region is `us-west-2`. You can change this in `terraform.tfvars`
+4. Run `./run`
+5. Select option (1) to deploy a new S3 bucket for the microservice
+6. Select (3) to build and run grpc-audio-converter
+
+To close, `ctrl+c`. Then select option (5) to remove the images. Select option (2) to fully delete the 
+S3 bucket (including any data that is in the bucket).
