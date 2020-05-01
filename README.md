@@ -18,7 +18,6 @@ Its still a work in progress - see next section.
 ### Supported Encodings
 The list is going to be a lot bigger shortly once I update the ProtoBuff. Currently supported encodings are:
 - WAV
-- M4A
 - MP3
 - FLAC
 
