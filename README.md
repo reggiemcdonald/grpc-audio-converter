@@ -20,6 +20,7 @@ The list is going to be a lot bigger shortly once I update the ProtoBuff. Curren
 - WAV
 - MP3
 - FLAC
+- MP4
 
 Again, since audio conversion is done through the FFMPEG tool, this list will get longer shortly (or become a link to the FFMPEG docs).
 
