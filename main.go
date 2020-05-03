@@ -7,7 +7,6 @@ import (
 	"log"
 )
 
-
 func main() {
 	var (
 		port = flag.Int("port", 3000, "port to run service on")
@@ -16,5 +15,5 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Printf("failed to load environment config %v", err)
 	}
-	converterservice.NewConverterService(*port)
+	converterservice.StartConverterService(*port)
 }
