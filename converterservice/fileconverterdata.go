@@ -9,6 +9,13 @@ import (
 	"time"
 )
 
+type FileConverterDataService interface {
+	NewRequest(id string) (bool, error)
+	CompleteConversion(id string, url string) (bool, error)
+	FailConversion(id string) (bool, error)
+	GetConversion(id string) (*ConvertJob, error)
+}
+
 type FileConverterData struct {
 	db *sql.DB
 }
@@ -80,7 +87,6 @@ func (f *FileConverterData) CompleteConversion(id string, url string) (bool, err
 func (f *FileConverterData) FailConversion(id string) (bool, error) {
 	stmt := fmt.Sprintf("UPDATE %s SET status=$1, last_updated=$2 WHERE id=$3", tableName)
 	status, lastUpdated := pb.ConvertFileQueryResponse_FAILED.String(), time.Now()
-	fmt.Printf("stmt: %s, status: %s, lastUdated %v id: %s\n", stmt, status, lastUpdated, id);
 	_, err := f.db.Exec(stmt, status, lastUpdated, id)
 	if err != nil {
 		return false, nil
