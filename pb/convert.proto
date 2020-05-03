@@ -5,7 +5,7 @@ package pb;
 enum Encoding {
     // TODO: Add more file types
     WAV  = 0;
-    M4A  = 1;
+    MP4  = 1;
     MP3  = 2;
     FLAC = 3;
 }
