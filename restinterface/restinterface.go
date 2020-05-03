@@ -15,7 +15,7 @@ func stringToEncoding(encoding string) (int, error) {
 	switch enc := strings.ToUpper(encoding); enc {
 	case "WAV":
 		return 0,nil
-	case "M4A":
+	case "MP4":
 		return 1,nil
 	case "MP3":
 		return 2,nil
