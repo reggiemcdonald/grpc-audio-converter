@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	_ "github.com/lib/pq"
-	"github.com/reggiemcdonald/grpc-audio-converter/pb"
+	encodings "github.com/reggiemcdonald/grpc-audio-converter/converterservice/enums"
 	"log"
 	"os"
 	"os/exec"
@@ -25,56 +25,43 @@ const (
 )
 
 type FileConverterService interface {
-	ConvertFile(request *pb.ConvertFileRequest, id string)
+	ConvertFile(request *FileConversionRequest)
 }
 
 type FileConverterConfiguration struct {
-	s3endpoint string
-	bucketName string
-	region     string
-	db         FileConverterDataService
-	isDev      bool
+	S3endpoint string
+	BucketName string
+	Region     string
+	Db         FileConverterDataRepository
+	IsDev      bool
 }
 
 type FileConverter struct {
-	s3 *s3.S3
-	uploader *s3manager.Uploader
+	s3         *s3.S3
+	uploader   *s3manager.Uploader
 	bucketName string
-	db FileConverterDataService
-	isDev bool
+	db         FileConverterDataRepository
+	isDev      bool
 }
 
 type conversionAttributes struct {
-	id               string
-	sourceEncoding   string
-	sourceUrl        string
-	destEncoding     string
-	includeExtension bool
+	request          *FileConversionRequest
 	tmpFile          string
 }
 
-func NewFileConverter(config FileConverterConfiguration) *FileConverter {
+func NewFileConverter(config *FileConverterConfiguration) *FileConverter {
 	sess := session.Must(session.NewSession(&aws.Config{
-		Region: aws.String(config.region),
-		Endpoint: aws.String(config.s3endpoint),
+		Region: aws.String(config.Region),
+		Endpoint: aws.String(config.S3endpoint),
 		S3ForcePathStyle: aws.Bool(true),
 	}))
 	return &FileConverter{
 		s3: s3.New(sess),
 		uploader: s3manager.NewUploader(sess),
-		bucketName: config.bucketName,
-		db: config.db,
-		isDev: config.isDev,
+		bucketName: config.BucketName,
+		db: config.Db,
+		isDev: config.IsDev,
 	}
-}
-
-/*
- * Formats the encoding to its string representation
- */
-func encodingToString(req *pb.ConvertFileRequest) (string, string) {
-	sourceEncoding := req.GetSourceEncoding().String()
-	destEncoding   := req.GetDestEncoding().String()
-	return sourceEncoding, destEncoding
 }
 
 /*
@@ -83,7 +70,7 @@ func encodingToString(req *pb.ConvertFileRequest) (string, string) {
  */
 func newTempFilePath(id string, destEncoding string, includeExtension bool) string {
 	if includeExtension {
-		return fmt.Sprintf("/tmp/%s.%s", id, destEncoding)
+		return fmt.Sprintf("/tmp/%s.%s", id, strings.ToLower(destEncoding))
 	}
 	return fmt.Sprintf("/tmp/%s", id)
 }
@@ -114,13 +101,13 @@ func (f *FileConverter) signedUrl(id string) (string, error) {
 func commandForDestEncoding(job *conversionAttributes) *exec.Cmd {
 	return exec.Command(ffmpeg,
 		formatFlag,
-		job.sourceEncoding,
+		job.request.SourceEncoding.Name(),
 		inputFlag,
-		job.sourceUrl,
+		job.request.SourceUrl,
 		mapFlag,
 		audioStream,
 		formatFlag,
-		job.destEncoding,
+		job.request.DestEncoding.Name(),
 		job.tmpFile)
 }
 
@@ -130,7 +117,7 @@ func commandForDestEncoding(job *conversionAttributes) *exec.Cmd {
  * so we force the extension to be the audio type
  */
 func commandForMP4(job *conversionAttributes) *exec.Cmd {
-	job.tmpFile = newTempFilePath(job.id, "m4a", job.includeExtension)
+	job.tmpFile = newTempFilePath(job.request.Id, "m4a", job.request.IncludeExtension)
 	return commandForDestEncoding(job)
 }
 
@@ -138,14 +125,16 @@ func commandForMP4(job *conversionAttributes) *exec.Cmd {
  * Creates a command object for codecs that do not require special circumstances
  */
 func defaultCommand(job *conversionAttributes) *exec.Cmd {
-	job.tmpFile = newTempFilePath(job.id, job.destEncoding, job.includeExtension)
+	job.tmpFile = newTempFilePath(job.request.Id, job.request.DestEncoding.Name(), job.request.IncludeExtension)
 	return commandForDestEncoding(job)
 }
 
+/*
+ * Selects the appropriate command to be created
+ */
 func selectCommand(job *conversionAttributes) (cmd *exec.Cmd){
-	fmt.Printf("THE FIEL FORMAT IS %s", job.destEncoding)
-	switch job.destEncoding {
-	case "MP4":
+	switch job.request.DestEncoding {
+	case encodings.MP4:
 		cmd = commandForMP4(job)
 	default:
 		cmd = defaultCommand(job)
@@ -155,25 +144,18 @@ func selectCommand(job *conversionAttributes) (cmd *exec.Cmd){
 
 /*
  * Downloads a file at the request source URL and streams it to ffmpeg for conversion
- * to the requested encoding
+ * to the requested name
  */
-func (f *FileConverter) ConvertFile(req *pb.ConvertFileRequest, id string) {
+func (f *FileConverter) ConvertFile(req *FileConversionRequest) {
+	id := req.Id
 	if _, err := f.db.NewRequest(id); err != nil {
 		log.Printf("could not create new job, encounterd %v", err)
 		return
 	}
-	sourceUrl := req.SourceUrl
-	sourceEncoding, destEncoding := encodingToString(req)
 	job := &conversionAttributes{
-		id: id,
-		sourceEncoding: sourceEncoding,
-		sourceUrl: sourceUrl,
-		destEncoding: destEncoding,
-		// TODO: add this to the request
-		includeExtension: false,
+		request: req,
 	}
 	cmd := selectCommand(job)
-	fmt.Printf("THE FILE PATH IS %s", job.tmpFile)
 	cmd.Stderr = os.Stderr
 	if err := cmd.Start(); err != nil {
 		log.Printf("failed to start conversion due to: %v", err)
@@ -182,7 +164,7 @@ func (f *FileConverter) ConvertFile(req *pb.ConvertFileRequest, id string) {
 	if err := cmd.Wait(); err != nil {
 		log.Printf("conversion failed, ecnountered %v", err)
 		if _, err := f.db.FailConversion(id); err != nil {
-			log.Printf("Failed to update job status, encountered %v", err)
+			log.Printf("Failed to update job Status, encountered %v", err)
 		}
 		return
 	}
@@ -194,7 +176,7 @@ func (f *FileConverter) ConvertFile(req *pb.ConvertFileRequest, id string) {
 		Bucket: aws.String(f.bucketName),
 		Key:    aws.String(id),
 		Body:   file,
-		ContentType: aws.String(fmt.Sprintf("audio/%s", destEncoding)),
+		ContentType: aws.String(fmt.Sprintf("audio/%s", req.DestEncoding.Name())),
 	}); err != nil {
 		log.Printf("failed to upload converted audio to S3, ecnountered %v", err)
 	}
@@ -203,14 +185,14 @@ func (f *FileConverter) ConvertFile(req *pb.ConvertFileRequest, id string) {
 	}
 	url, err := f.signedUrl(id)
 	if err != nil {
-		log.Printf("Failed to generate presigned URL for ID %s", id)
+		log.Printf("Failed to generate presigned URL for Id %s", id)
 		if _, err := f.db.FailConversion(id); err != nil {
-			log.Printf("failed to update job status, encountered %v", err)
+			log.Printf("failed to update job Status, encountered %v", err)
 		}
 		return
 	}
 	if _, err := f.db.CompleteConversion(id, url); err != nil {
-		log.Printf("failed to update DB for ID %s, encountered %v", id, err)
+		log.Printf("failed to update DB for Id %s, encountered %v", id, err)
 	} else {
 		log.Printf("%s successfully converted", id)
 	}

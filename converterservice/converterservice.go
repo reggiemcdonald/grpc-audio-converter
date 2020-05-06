@@ -1,3 +1,4 @@
+// The ConverterServer
 package converterservice
 
 import (
@@ -9,60 +10,68 @@ import (
 	"google.golang.org/grpc"
 	"log"
 	"net"
-	"os"
 )
 
+/*
+ * The parts of the converter server
+ */
 type ConverterServer struct {
 	fileConverter FileConverterService
-	db            FileConverterDataService
+	db            FileConverterDataRepository
+	config        *ConverterServerConfig
 }
 
-func newDefaultFileConverterConfiguration(db FileConverterDataService) FileConverterConfiguration {
-	bucketName := os.Getenv("BUCKET_NAME")
-	s3endpoint := os.Getenv("S3_ENDPOINT")
-	region     := os.Getenv("REGION")
-	isDev      := os.Getenv("DEV") == "true"
-	return FileConverterConfiguration{
-		bucketName: bucketName,
-		s3endpoint: s3endpoint,
-		region:     region,
-		db:         db,
-		isDev:      isDev,
-	}
+/*
+ * The configuration for the converter server
+ */
+type ConverterServerConfig struct {
+	Port       int
+	BucketName string
+	S3endpoint string
+	S3Region   string
+	Db         FileConverterDataRepository
+	IsDev      bool
 }
 
 /*
  * Creates a new converter service instance
  */
-func NewConverterServer() *ConverterServer {
-	dbUser     := os.Getenv("POSTGRES_USER")
-	dbPass     := os.Getenv("POSTGRES_PASSWORD")
-	db         := NewFileConverterData(dbUser, dbPass)
-	config     := newDefaultFileConverterConfiguration(db)
+func NewWithConfiguration(config *ConverterServerConfig) *ConverterServer {
 	return &ConverterServer{
-		fileConverter: NewFileConverter(config),
-		db: db,
+		fileConverter: NewFileConverter(&FileConverterConfiguration{
+			BucketName: config.BucketName,
+			S3endpoint: config.S3endpoint,
+			Region:     config.S3Region,
+			Db:         config.Db,
+			IsDev:      config.IsDev,
+		}),
+		db: config.Db,
+		config: config,
 	}
 }
 
-func StartConverterService(port int) {
+func Start(server *ConverterServer) {
 	log.Println("Starting service...")
+	port := server.config.Port
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		log.Fatalf("Failed to listen to port %d, caused by %v. Is this port occupied?", port, err)
 	}
 	s := grpc.NewServer()
-	converterServer := NewConverterServer()
-	pb.RegisterConverterServiceServer(s, converterServer)
+	pb.RegisterConverterServiceServer(s, server)
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("Failure! %v", err)
 	}
 }
 
 func (s *ConverterServer) ConvertFile(ctx context.Context, req *pb.ConvertFileRequest) (*pb.ConvertFileResponse, error) {
-	uuid := uuid.New().String()
-	go s.fileConverter.ConvertFile(req, uuid)
-	return &pb.ConvertFileResponse{Accepted: true, Id: uuid}, nil
+	id := uuid.New().String()
+	request, err := NewFileConversionRequest(req, id)
+	if err != nil {
+		return &pb.ConvertFileResponse{Accepted: false, Id: id}, err
+	}
+	go s.fileConverter.ConvertFile(request)
+	return &pb.ConvertFileResponse{Accepted: true, Id: id}, nil
 }
 
 func (s *ConverterServer) ConvertFileQuery(ctx context.Context, req *pb.ConvertFileQueryRequest) (*pb.ConvertFileQueryResponse, error) {
@@ -73,9 +82,9 @@ func (s *ConverterServer) ConvertFileQuery(ctx context.Context, req *pb.ConvertF
 		return nil, errors.New(fmt.Sprintf("failed to get %s", req.Id))
 	}
 	return &pb.ConvertFileQueryResponse{
-		Id: job.id,
-		Status: pb.ConvertFileQueryResponse_Status(pb.ConvertFileQueryResponse_Status_value[job.status]),
-		Url: job.currUrl,
+		Id: job.Id,
+		Status: pb.ConvertFileQueryResponse_Status(pb.ConvertFileQueryResponse_Status_value[job.Status]),
+		Url: job.CurrUrl,
 	}, nil
 }
 
