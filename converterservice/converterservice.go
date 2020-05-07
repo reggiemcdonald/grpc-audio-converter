@@ -25,12 +25,10 @@ type ConverterServer struct {
  * The configuration for the converter server
  */
 type ConverterServerConfig struct {
-	Port       int
-	BucketName string
-	S3endpoint string
-	S3Region   string
-	Db         FileConverterDataRepository
-	IsDev      bool
+	Db                FileConverterDataRepository
+	ExecutableFactory ExecutableFactory
+	Port              int
+	S3service         S3Service
 }
 
 /*
@@ -39,11 +37,9 @@ type ConverterServerConfig struct {
 func NewWithConfiguration(config *ConverterServerConfig) *ConverterServer {
 	return &ConverterServer{
 		fileConverter: NewFileConverter(&FileConverterConfiguration{
-			BucketName: config.BucketName,
-			S3endpoint: config.S3endpoint,
-			Region:     config.S3Region,
+			S3service: config.S3service,
 			Db:         config.Db,
-			IsDev:      config.IsDev,
+			ExecutableFactory: config.ExecutableFactory,
 		}),
 		db: config.Db,
 		config: config,
@@ -67,6 +63,7 @@ func Start(server *ConverterServer) {
 func (s *ConverterServer) ConvertFile(ctx context.Context, req *pb.ConvertFileRequest) (*pb.ConvertFileResponse, error) {
 	id := uuid.New().String()
 	request, err := NewFileConversionRequest(req, id)
+	s.db.NewRequest(id)
 	if err != nil {
 		return &pb.ConvertFileResponse{Accepted: false, Id: id}, err
 	}
