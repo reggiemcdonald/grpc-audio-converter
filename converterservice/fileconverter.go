@@ -132,6 +132,9 @@ func (f *FileConverter) ConvertFile(req *FileConversionRequest) {
 	cmd.SetStderr(os.Stderr)
 	if err := cmd.Start(); err != nil {
 		log.Printf("failed to start conversion due to: %v", err)
+		if _, err := f.db.FailConversion(id); err != nil {
+			log.Printf("Failed to update job status, encountered %v", err)
+		}
 		return
 	}
 	if err := cmd.Wait(); err != nil {

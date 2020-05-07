@@ -92,6 +92,9 @@ func TestConvertFile_FailedCmd(t *testing.T) {
 	}
 	fileConverter := converterservice.NewFileConverter(config)
 	executableFactory.Success = false
+	success, err := repo.NewRequest(req.Id)
+	assert.True(t, success, "should be able to create new request")
+	assert.Nil(t, err, "should not have errored")
 	fileConverter.ConvertFile(req)
 	convertedJob, err := repo.GetConversion(req.Id)
 	assert.Nil(t, err, "err should be nil")
@@ -149,6 +152,9 @@ func TestConvertFile_FailedS3(t *testing.T) {
 	}
 	fileConverter := converterservice.NewFileConverter(config)
 	s3Service.Success = false
+	success, err := repo.NewRequest(req.Id)
+	assert.True(t, success, "should be able to create new request")
+	assert.Nil(t, err, "should not have errored")
 	fileConverter.ConvertFile(req)
 	convertedJob, err := repo.GetConversion(req.Id)
 	assert.NotNil(t, convertedJob, "should have a job")

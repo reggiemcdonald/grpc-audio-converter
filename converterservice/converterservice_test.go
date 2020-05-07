@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/reggiemcdonald/grpc-audio-converter/converterservice"
+	"github.com/reggiemcdonald/grpc-audio-converter/converterservice/enums"
 	"github.com/reggiemcdonald/grpc-audio-converter/converterservice/mocks"
 	"github.com/reggiemcdonald/grpc-audio-converter/pb"
 	"github.com/stretchr/testify/assert"
@@ -63,7 +64,7 @@ func TestNewWithConfiguration(t *testing.T) {
 	})
 }
 
-func TestConverterServer_ConvertFile(t *testing.T) {
+func TestConverterServer_ConvertFile_Success(t *testing.T) {
 	config := testingConfiguration()
 	server := converterservice.NewWithConfiguration(toServerConfiguration(config))
 	res, err := server.ConvertFile(context.TODO(), testGrpcRequest)
@@ -75,6 +76,50 @@ func TestConverterServer_ConvertFile(t *testing.T) {
 	assert.Nil(t, err, "there should not be an error with getting result")
 	assert.NotNil(t, job, "job should not be nil")
 	assert.Equal(t, res.Id, job.Id, "job should be the right job")
+}
+
+func TestConverterServer_ConvertFile_Fail(t *testing.T) {
+	config := testingConfiguration()
+	server := converterservice.NewWithConfiguration(toServerConfiguration(config))
+	config.Db.Success = false
+	res, err := server.ConvertFile(context.TODO(), testGrpcRequest)
+	assert.NotNil(t, err, "should have errored")
+	assert.NotNil(t, res.Id, "should still get an ID")
+	assert.False(t, res.Accepted, "should not have been accepted")
+}
+
+func TestConverterServer_ConvertFile_SameEncoding(t *testing.T) {
+	config := testingConfiguration()
+	server := converterservice.NewWithConfiguration(toServerConfiguration(config))
+	res, err := server.ConvertFile(context.TODO(), &pb.ConvertFileRequest{
+		SourceUrl: testGrpcRequest.SourceUrl,
+		SourceEncoding: pb.Encoding_WAV,
+		DestEncoding: pb.Encoding_WAV,
+	})
+	assert.NotNil(t, res, "response should not be nil")
+	assert.NotNil(t, err, "should have encountered an error")
+	assert.False(t, res.Accepted, "should not have been accepted")
+	assert.NotEmpty(t, res.Id, "should still have an ID")
+	job, err := config.Db.GetConversion(res.Id)
+	assert.Nil(t, err, "getting job from repo should not have errored")
+	assert.NotNil(t, job, "should have a job")
+	assert.Equal(t, enums.FAILED.Name(), job.Status, "status should be set to failed")
+}
+
+func TestConverterServer_ConvertFile_MissingSource(t *testing.T) {
+	config := testingConfiguration()
+	server := converterservice.NewWithConfiguration(toServerConfiguration(config))
+	res, err := server.ConvertFile(context.TODO(), &pb.ConvertFileRequest{
+		SourceEncoding: pb.Encoding_WAV,
+		DestEncoding: pb.Encoding_MP4,
+	})
+	assert.NotNil(t, res, "response should not be nil")
+	assert.NotNil(t, err, "should have encountered an error")
+	assert.False(t, res.Accepted, "response should not have been accepted")
+	assert.NotEmpty(t, res.Id, "response should still have an ID")
+	job, err := config.Db.GetConversion(res.Id)
+	assert.Nil(t, err, "should not have errored getting from DB")
+	assert.Equal(t, enums.FAILED.Name(), job.Status, "status should be set to failed")
 }
 
 func TestConverterServer_ConvertFileQuery_Success(t *testing.T) {
