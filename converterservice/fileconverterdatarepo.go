@@ -4,7 +4,7 @@ package converterservice
 import (
 	"database/sql"
 	"fmt"
-	"github.com/reggiemcdonald/grpc-audio-converter/pb"
+	"github.com/reggiemcdonald/grpc-audio-converter/converterservice/enums"
 	"log"
 	"time"
 )
@@ -61,7 +61,7 @@ func NewFileConverterData(dbUser string, dbPass string) *FileConverterData {
  */
 func (f *FileConverterData) NewRequest(id string) (bool, error) {
 	stmt := fmt.Sprintf("INSERT INTO %s VALUES ($1, $2, $3, $4)", tableName)
-	status, url, lastTime := pb.ConvertFileQueryResponse_QUEUED.String(), "NONE", time.Now()
+	status, url, lastTime := enums.QUEUED.Name(), "NONE", time.Now()
 	_, err := f.db.Exec(stmt, id, status, url, lastTime)
 	if err != nil {
 		return false, err
@@ -74,7 +74,7 @@ func (f *FileConverterData) NewRequest(id string) (bool, error) {
  */
 func (f *FileConverterData) StartConversion(id string) (bool, error) {
 	stmt := fmt.Sprintf("UPDATE %s SET Status=$1, last_updated=$2 WHERE Id=$3", tableName)
-	status, lastUpdated := pb.ConvertFileQueryResponse_CONVERTING.String(), time.Now()
+	status, lastUpdated := enums.CONVERTING.Name(), time.Now()
 	_, err := f.db.Exec(stmt, status, lastUpdated, id)
 	if err != nil {
 		return false, err
@@ -87,7 +87,7 @@ func (f *FileConverterData) StartConversion(id string) (bool, error) {
  */
 func (f *FileConverterData) CompleteConversion(id string, url string) (bool, error) {
 	stmt := fmt.Sprintf("UPDATE %s SET Status=$1, curr_url=$2, last_updated=$3 WHERE Id=$4", tableName)
-	status, lastUpdated := pb.ConvertFileQueryResponse_COMPLETED.String(), time.Now()
+	status, lastUpdated := enums.COMPLETED.Name(), time.Now()
 	_, err := f.db.Exec(stmt, status, url, lastUpdated, id)
 	if err != nil {
 		return false, err
@@ -100,7 +100,7 @@ func (f *FileConverterData) CompleteConversion(id string, url string) (bool, err
  */
 func (f *FileConverterData) FailConversion(id string) (bool, error) {
 	stmt := fmt.Sprintf("UPDATE %s SET Status=$1, last_updated=$2 WHERE Id=$3", tableName)
-	status, lastUpdated := pb.ConvertFileQueryResponse_FAILED.String(), time.Now()
+	status, lastUpdated := enums.FAILED.Name(), time.Now()
 	_, err := f.db.Exec(stmt, status, lastUpdated, id)
 	if err != nil {
 		return false, nil
