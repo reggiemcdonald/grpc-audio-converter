@@ -27,11 +27,16 @@ var encodingsCodec = []codec{
 type codec int
 
 type Encoding interface {
-	Name() string
+	Name()  string
+	Value() int
 }
 
 func (c codec) Name() string {
 	return encodingsName[c]
+}
+
+func (c codec) Value() int {
+	return int(c)
 }
 
 func ToEncoding(enumVal int) (codec, error) {
