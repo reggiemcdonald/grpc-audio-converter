@@ -11,6 +11,7 @@ import (
 
 type FileConverterDataRepository interface {
 	NewRequest(id string) (bool, error)
+	StartConversion(id string) (bool, error)
 	CompleteConversion(id string, url string) (bool, error)
 	FailConversion(id string) (bool, error)
 	GetConversion(id string) (*ConvertJob, error)
@@ -51,7 +52,7 @@ func NewFileConverterData(dbUser string, dbPass string) *FileConverterData {
 }
 
 /*
- * Inserts a request into the database
+ * Inserts a Request into the database
  * SCHEMA:
  *   Id string PRIMARY_KEY
  *   Status string [QUEUED | CONVERTING | COMPLETED | FAILED]
@@ -60,8 +61,21 @@ func NewFileConverterData(dbUser string, dbPass string) *FileConverterData {
  */
 func (f *FileConverterData) NewRequest(id string) (bool, error) {
 	stmt := fmt.Sprintf("INSERT INTO %s VALUES ($1, $2, $3, $4)", tableName)
-	status, url, lastTime := pb.ConvertFileQueryResponse_CONVERTING.String(), "NONE", time.Now()
+	status, url, lastTime := pb.ConvertFileQueryResponse_QUEUED.String(), "NONE", time.Now()
 	_, err := f.db.Exec(stmt, id, status, url, lastTime)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+/*
+ * Updates the Status of the current file conversion to complete, including the presigned URL to the bucket object
+ */
+func (f *FileConverterData) StartConversion(id string) (bool, error) {
+	stmt := fmt.Sprintf("UPDATE %s SET Status=$1, last_updated=$2 WHERE Id=$3", tableName)
+	status, lastUpdated := pb.ConvertFileQueryResponse_CONVERTING.String(), time.Now()
+	_, err := f.db.Exec(stmt, status, lastUpdated, id)
 	if err != nil {
 		return false, err
 	}
