@@ -10,34 +10,20 @@ import (
 )
 
 type MockFileConverterDb struct {
-	repo map[string]*converterservice.ConvertJob
-	success bool
+	Data    map[string]*converterservice.ConvertJob
+	Success bool
 }
 
 func NewMockFileConverterDb() *MockFileConverterDb {
 	return &MockFileConverterDb{
-		repo: make(map[string]*converterservice.ConvertJob),
-		success: true,
+		Data:    make(map[string]*converterservice.ConvertJob),
+		Success: true,
 	}
 }
 
-/*
- * Allows the user to fail any calls to the mock
- */
-func (m *MockFileConverterDb) SetSuccess(success bool) {
-	m.success = success
-}
-
-/*
- * Retrieves the data that is stored in the mock
- */
-func (m *MockFileConverterDb) Repo() map[string]*converterservice.ConvertJob {
-	return m.repo
-}
-
 func (m *MockFileConverterDb) NewRequest(id string) (bool, error) {
-	if m.success {
-		m.repo[id] = &converterservice.ConvertJob{
+	if m.Success {
+		m.Data[id] = &converterservice.ConvertJob{
 			Id: id,
 			Status: enums.QUEUED.Name(),
 			CurrUrl: "NONE",
@@ -49,8 +35,8 @@ func (m *MockFileConverterDb) NewRequest(id string) (bool, error) {
 }
 
 func (m *MockFileConverterDb) StartConversion(id string) (bool, error) {
-	if m.success && m.repo[id] != nil {
-		job := m.repo[id]
+	if m.Success && m.Data[id] != nil {
+		job := m.Data[id]
 		job.Status = enums.CONVERTING.Name()
 		job.LastUpdated = time.Now()
 		return true, nil
@@ -59,8 +45,8 @@ func (m *MockFileConverterDb) StartConversion(id string) (bool, error) {
 }
 
 func (m *MockFileConverterDb) CompleteConversion(id string, url string) (bool, error) {
-	if m.success && m.repo[id] != nil {
-		job := m.repo[id]
+	if m.Success && m.Data[id] != nil {
+		job := m.Data[id]
 		job.CurrUrl = url
 		job.Status = enums.COMPLETED.Name()
 		job.LastUpdated = time.Now()
@@ -70,8 +56,8 @@ func (m *MockFileConverterDb) CompleteConversion(id string, url string) (bool, e
 }
 
 func (m *MockFileConverterDb) FailConversion(id string) (bool, error) {
-	if m.success && m.repo[id] != nil {
-		job := m.repo[id]
+	if m.Success && m.Data[id] != nil {
+		job := m.Data[id]
 		job.Status = enums.FAILED.Name()
 		job.LastUpdated = time.Now()
 		return true, nil
@@ -80,8 +66,8 @@ func (m *MockFileConverterDb) FailConversion(id string) (bool, error) {
 }
 
 func (m *MockFileConverterDb) GetConversion(id string) (*converterservice.ConvertJob, error) {
-	if m.success && m.repo[id] != nil {
-		return m.repo[id], nil
+	if m.Success && m.Data[id] != nil {
+		return m.Data[id], nil
 	}
 	return nil, errors.New(fmt.Sprintf("could not get job by id %s", id))
 }

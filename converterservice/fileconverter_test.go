@@ -121,7 +121,7 @@ func TestConvertFile_FailedRepo(t *testing.T) {
 		S3service: s3Service,
 	}
 	fileConverter := converterservice.NewFileConverter(config)
-	repo.SetSuccess(false)
+	repo.Success = false
 	fileConverter.ConvertFile(req)
 	convertedJob, err := repo.GetConversion(req.Id)
 	assert.Nil(t, convertedJob, "should be no entry")
