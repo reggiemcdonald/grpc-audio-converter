@@ -48,6 +48,16 @@ func (m *MockFileConverterDb) NewRequest(id string) (bool, error) {
 	return false, errors.New(fmt.Sprintf("failed to create request %s", id))
 }
 
+func (m *MockFileConverterDb) StartConversion(id string) (bool, error) {
+	if m.success && m.repo[id] != nil {
+		job := m.repo[id]
+		job.Status = pb.ConvertFileQueryResponse_CONVERTING.String()
+		job.LastUpdated = time.Now()
+		return true, nil
+	}
+	return false, errors.New(fmt.Sprintf("failed to set status to converting in DB for id %s", id))
+}
+
 func (m *MockFileConverterDb) CompleteConversion(id string, url string) (bool, error) {
 	if m.success && m.repo[id] != nil {
 		job := m.repo[id]
