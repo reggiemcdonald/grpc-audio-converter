@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/reggiemcdonald/grpc-audio-converter/converterservice"
-	"github.com/reggiemcdonald/grpc-audio-converter/pb"
+	"github.com/reggiemcdonald/grpc-audio-converter/converterservice/enums"
 	"time"
 )
 
@@ -39,7 +39,7 @@ func (m *MockFileConverterDb) NewRequest(id string) (bool, error) {
 	if m.success {
 		m.repo[id] = &converterservice.ConvertJob{
 			Id: id,
-			Status: pb.ConvertFileQueryResponse_CONVERTING.String(),
+			Status: enums.QUEUED.Name(),
 			CurrUrl: "NONE",
 			LastUpdated: time.Now(),
 		}
@@ -51,7 +51,7 @@ func (m *MockFileConverterDb) NewRequest(id string) (bool, error) {
 func (m *MockFileConverterDb) StartConversion(id string) (bool, error) {
 	if m.success && m.repo[id] != nil {
 		job := m.repo[id]
-		job.Status = pb.ConvertFileQueryResponse_CONVERTING.String()
+		job.Status = enums.CONVERTING.Name()
 		job.LastUpdated = time.Now()
 		return true, nil
 	}
@@ -62,7 +62,7 @@ func (m *MockFileConverterDb) CompleteConversion(id string, url string) (bool, e
 	if m.success && m.repo[id] != nil {
 		job := m.repo[id]
 		job.CurrUrl = url
-		job.Status = pb.ConvertFileQueryResponse_COMPLETED.String()
+		job.Status = enums.COMPLETED.Name()
 		job.LastUpdated = time.Now()
 		return true, nil
 	}
@@ -72,7 +72,7 @@ func (m *MockFileConverterDb) CompleteConversion(id string, url string) (bool, e
 func (m *MockFileConverterDb) FailConversion(id string) (bool, error) {
 	if m.success && m.repo[id] != nil {
 		job := m.repo[id]
-		job.Status = pb.ConvertFileQueryResponse_FAILED.String()
+		job.Status = enums.FAILED.Name()
 		job.LastUpdated = time.Now()
 		return true, nil
 	}
