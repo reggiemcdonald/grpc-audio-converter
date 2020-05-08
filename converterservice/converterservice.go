@@ -62,15 +62,15 @@ func Start(server *ConverterServer) {
 
 func (s *ConverterServer) ConvertFile(ctx context.Context, req *pb.ConvertFileRequest) (*pb.ConvertFileResponse, error) {
 	id := uuid.New().String()
-	if _, err := s.db.NewRequest(id); err != nil {
-		return &pb.ConvertFileResponse{Accepted: false, Id: id}, errors.New("an internal error occurred")
-	}
 	request, err := NewFileConversionRequest(req, id)
 	if err != nil {
 		if _, dbErr := s.db.FailConversion(id); dbErr != nil {
 			log.Printf("failed to update DB with failure, encountered %v", dbErr)
 		}
-		return &pb.ConvertFileResponse{Accepted: false, Id: id}, err
+		return nil, err
+	}
+	if _, err := s.db.NewRequest(id); err != nil {
+		return nil, errors.New("an internal error occurred")
 	}
 	go s.fileConverter.ConvertFile(request)
 	return &pb.ConvertFileResponse{Accepted: true, Id: id}, nil
