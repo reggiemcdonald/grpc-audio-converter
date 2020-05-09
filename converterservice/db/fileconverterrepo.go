@@ -1,5 +1,5 @@
 // Simple crud operations for managing new and existing file conversion requests
-package converterservice
+package db
 
 import (
 	"database/sql"
@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-type FileConverterDataRepository interface {
+type FileConverterRepository interface {
 	NewRequest(id string) (bool, error)
 	StartConversion(id string) (bool, error)
 	CompleteConversion(id string, url string) (bool, error)
@@ -17,10 +17,16 @@ type FileConverterDataRepository interface {
 	GetConversion(id string) (*ConvertJob, error)
 }
 
-type FileConverterData struct {
-	db *sql.DB
+type DatabaseConnection interface {
+	Exec(query string, args ...interface{}) (sql.Result, error)
+	QueryRow(query string, args ...interface{}) *sql.Row
 }
 
+type FileConverterData struct {
+	db DatabaseConnection
+}
+
+// Struct representing a row in the file converter database
 type ConvertJob struct {
 	Id          string
 	Status      string
@@ -28,24 +34,27 @@ type ConvertJob struct {
 	LastUpdated time.Time
 }
 
-/*
- * Database constants
- */
+// Database constants
 const (
 	host       = "converter_db"
 	tableName  = "convert_jobs"
 )
 
-/*
- * FileConverterData constructor
- */
-func NewFileConverterData(dbUser string, dbPass string) *FileConverterData {
+
+// FileConverterData constructor
+func NewFromCredentials(dbUser string, dbPass string) FileConverterRepository {
 	connstr := fmt.Sprintf("host=%s user=%s password=%s sslmode=disable", host, dbUser, dbPass)
 	log.Print(connstr)
 	db, err := sql.Open("postgres", connstr)
 	if err != nil {
 		log.Fatalf("failed to connect to database encountered, %v", err)
 	}
+	return &FileConverterData{
+		db: db,
+	}
+}
+
+func NewFromConnection(db DatabaseConnection) FileConverterRepository {
 	return &FileConverterData{
 		db: db,
 	}
@@ -69,9 +78,7 @@ func (f *FileConverterData) NewRequest(id string) (bool, error) {
 	return true, nil
 }
 
-/*
- * Updates the Status of the current file conversion to complete, including the presigned URL to the bucket object
- */
+// Updates the Status of the current file conversion to complete, including the presigned URL to the bucket object
 func (f *FileConverterData) StartConversion(id string) (bool, error) {
 	stmt := fmt.Sprintf("UPDATE %s SET Status=$1, last_updated=$2 WHERE Id=$3", tableName)
 	status, lastUpdated := enums.CONVERTING.Name(), time.Now()
@@ -82,9 +89,7 @@ func (f *FileConverterData) StartConversion(id string) (bool, error) {
 	return true, nil
 }
 
-/*
- * Updates the Status of the current file conversion to complete, including the presigned URL to the bucket object
- */
+//Updates the Status of the current file conversion to complete, including the presigned URL to the bucket object
 func (f *FileConverterData) CompleteConversion(id string, url string) (bool, error) {
 	stmt := fmt.Sprintf("UPDATE %s SET Status=$1, curr_url=$2, last_updated=$3 WHERE Id=$4", tableName)
 	status, lastUpdated := enums.COMPLETED.Name(), time.Now()
@@ -95,22 +100,19 @@ func (f *FileConverterData) CompleteConversion(id string, url string) (bool, err
 	return true, nil
 }
 
-/*
- * Updates the Status of the specified file conversion to failed, along with the timestamp of failure
- */
+
+// Updates the Status of the specified file conversion to failed, along with the timestamp of failure
 func (f *FileConverterData) FailConversion(id string) (bool, error) {
 	stmt := fmt.Sprintf("UPDATE %s SET Status=$1, last_updated=$2 WHERE Id=$3", tableName)
 	status, lastUpdated := enums.FAILED.Name(), time.Now()
 	_, err := f.db.Exec(stmt, status, lastUpdated, id)
 	if err != nil {
-		return false, nil
+		return false, err
 	}
 	return true, nil
 }
 
-/*
- * Fetches ConvertJob from the database
- */
+// Fetches convert job from the database
 func (f *FileConverterData) GetConversion(id string) (*ConvertJob, error) {
 	stmt := fmt.Sprintf("SELECT * FROM %s WHERE Id=$1", tableName)
 	var (

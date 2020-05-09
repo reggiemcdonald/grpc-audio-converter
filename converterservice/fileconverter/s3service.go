@@ -1,4 +1,4 @@
-package converterservice
+package fileconverter
 
 import (
 	"fmt"

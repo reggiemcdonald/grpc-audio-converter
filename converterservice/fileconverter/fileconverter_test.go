@@ -1,11 +1,11 @@
 // Tests FileConverter
-package converterservice_test
+package fileconverter_test
 
 import (
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/reggiemcdonald/grpc-audio-converter/converterservice"
 	encodings "github.com/reggiemcdonald/grpc-audio-converter/converterservice/enums"
+	"github.com/reggiemcdonald/grpc-audio-converter/converterservice/fileconverter"
 	"github.com/reggiemcdonald/grpc-audio-converter/converterservice/mocks"
 	"github.com/reggiemcdonald/grpc-audio-converter/pb"
 	"github.com/stretchr/testify/assert"
@@ -20,9 +20,9 @@ const (
 	testRegion     = "test-Region"
 )
 
-func defaultTestingConfiguration() *converterservice.FileConverterConfiguration {
-	return &converterservice.FileConverterConfiguration{
-		Db: mocks.NewMockFileConverterDb(),
+func defaultTestingConfiguration() *fileconverter.ConverterImplementation {
+	return &fileconverter.ConverterImplementation{
+		Db: mocks.NewMockFileConverterRepo(),
 		ExecutableFactory: mocks.NewMockExecutableFactory(),
 	}
 }
@@ -31,32 +31,32 @@ func TestNewFileConverter(t *testing.T) {
 	config := defaultTestingConfiguration()
 	t.Run("online s3 service", func (t *testing.T) {
 		config.S3service = mocks.NewMockS3Service(testRegion, testS3Endpoint, testBucketName)
-		fileconverter := converterservice.NewFileConverter(config)
+		fileconverter := fileconverter.New(config)
 		assert.NotNil(t, fileconverter, "file converter should not be nil")
 	})
 	t.Run("locla S3 service", func (t *testing.T) {
 		config.S3service = mocks.NewMockLocalS3Service(testRegion, testS3Endpoint, testBucketName)
-		fileconverter := converterservice.NewFileConverter(config)
+		fileconverter := fileconverter.New(config)
 		assert.NotNil(t, fileconverter, "file converter should not be nil")
 	})
 }
 
 func TestConvertFile_Success(t *testing.T) {
-	req := &converterservice.FileConversionRequest{
+	req := &fileconverter.FileConversionRequest{
 		Id: uuid.New().String(),
 		SourceUrl: "some-source-url",
 		SourceEncoding: encodings.FLAC,
 		DestEncoding: encodings.MP3,
 	}
-	repo := mocks.NewMockFileConverterDb()
+	repo := mocks.NewMockFileConverterRepo()
 	executableFactory := mocks.NewMockExecutableFactory()
 	s3Service := mocks.NewMockS3Service(testRegion, testS3Endpoint, testBucketName)
-	config := &converterservice.FileConverterConfiguration{
+	config := &fileconverter.ConverterImplementation{
 		Db: repo,
 		ExecutableFactory: executableFactory,
 		S3service: s3Service,
 	}
-	fileConverter := converterservice.NewFileConverter(config)
+	fileConverter := fileconverter.New(config)
 	success, err := config.Db.NewRequest(req.Id)
 	assert.True(t, success, "new request should have been successful")
 	assert.Nil(t, err, "should not have errored adding to the repo")
@@ -76,21 +76,21 @@ func TestConvertFile_Success(t *testing.T) {
 }
 
 func TestConvertFile_FailedCmd(t *testing.T) {
-	req := &converterservice.FileConversionRequest{
+	req := &fileconverter.FileConversionRequest{
 		Id: uuid.New().String(),
 		SourceUrl: "some-source-url",
 		SourceEncoding: encodings.FLAC,
 		DestEncoding: encodings.MP3,
 	}
-	repo := mocks.NewMockFileConverterDb()
+	repo := mocks.NewMockFileConverterRepo()
 	executableFactory := mocks.NewMockExecutableFactory()
 	s3Service := mocks.NewMockS3Service(testRegion, testS3Endpoint, testBucketName)
-	config := &converterservice.FileConverterConfiguration{
+	config := &fileconverter.ConverterImplementation{
 		Db: repo,
 		ExecutableFactory: executableFactory,
 		S3service: s3Service,
 	}
-	fileConverter := converterservice.NewFileConverter(config)
+	fileConverter := fileconverter.New(config)
 	executableFactory.Success = false
 	success, err := repo.NewRequest(req.Id)
 	assert.True(t, success, "should be able to create new request")
@@ -109,21 +109,21 @@ func TestConvertFile_FailedCmd(t *testing.T) {
 }
 
 func TestConvertFile_FailedRepo(t *testing.T) {
-	req := &converterservice.FileConversionRequest{
+	req := &fileconverter.FileConversionRequest{
 		Id: uuid.New().String(),
 		SourceUrl: "some-source-url",
 		SourceEncoding: encodings.FLAC,
 		DestEncoding: encodings.MP3,
 	}
-	repo := mocks.NewMockFileConverterDb()
+	repo := mocks.NewMockFileConverterRepo()
 	executableFactory := mocks.NewMockExecutableFactory()
 	s3Service := mocks.NewMockS3Service(testRegion, testS3Endpoint, testBucketName)
-	config := &converterservice.FileConverterConfiguration{
+	config := &fileconverter.ConverterImplementation{
 		Db: repo,
 		ExecutableFactory: executableFactory,
 		S3service: s3Service,
 	}
-	fileConverter := converterservice.NewFileConverter(config)
+	fileConverter := fileconverter.New(config)
 	repo.Success = false
 	fileConverter.ConvertFile(req)
 	convertedJob, err := repo.GetConversion(req.Id)
@@ -136,21 +136,21 @@ func TestConvertFile_FailedRepo(t *testing.T) {
 }
 
 func TestConvertFile_FailedS3(t *testing.T) {
-	req := &converterservice.FileConversionRequest{
+	req := &fileconverter.FileConversionRequest{
 		Id: uuid.New().String(),
 		SourceUrl: "some-source-url",
 		SourceEncoding: encodings.FLAC,
 		DestEncoding: encodings.MP3,
 	}
-	repo := mocks.NewMockFileConverterDb()
+	repo := mocks.NewMockFileConverterRepo()
 	executableFactory := mocks.NewMockExecutableFactory()
 	s3Service := mocks.NewMockS3Service(testRegion, testS3Endpoint, testBucketName)
-	config := &converterservice.FileConverterConfiguration{
+	config := &fileconverter.ConverterImplementation{
 		Db: repo,
 		ExecutableFactory: executableFactory,
 		S3service: s3Service,
 	}
-	fileConverter := converterservice.NewFileConverter(config)
+	fileConverter := fileconverter.New(config)
 	s3Service.Success = false
 	success, err := repo.NewRequest(req.Id)
 	assert.True(t, success, "should be able to create new request")
