@@ -25,6 +25,8 @@ type Executable interface {
 	Stderr() io.Writer
 	// Sets the stderr stream
 	SetStderr(io.Writer)
+	// Prints the command
+	String() string
 }
 
 type defaultExecutable struct {
@@ -74,4 +76,8 @@ func (e *defaultExecutable) Stderr() io.Writer {
 
 func (e *defaultExecutable) SetStderr(stderr io.Writer) {
 	e.cmd.Stderr = stderr
+}
+
+func (e *defaultExecutable) String() string {
+	return e.cmd.String()
 }
