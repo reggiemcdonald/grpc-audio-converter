@@ -26,7 +26,7 @@ func NewMockExecutableFactory() *MockExecutableFactory {
 	}
 }
 
-func (m *MockExecutableFactory) SelectCommand(job *fileconverter.ConversionAttributes) fileconverter.Executable {
+func (m *MockExecutableFactory) Build(job *fileconverter.ConversionAttributes) fileconverter.Executable {
 	executable := &MockExecutable{
 		Success: m.Success,
 		Job: job,
