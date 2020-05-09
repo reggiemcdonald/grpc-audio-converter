@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	WAV codec = iota
+	WAV encoding = iota
 	MP4
 	MP3
 	FLAC
@@ -17,31 +17,31 @@ var encodingsName = []string{
 	"MP3",
 	"FLAC",
 }
-var encodingsCodec = []codec{
+var encodings = []encoding{
 	WAV,
 	MP4,
 	MP3,
 	FLAC,
 }
 
-type codec int
+type encoding int
 
 type Encoding interface {
 	Name()  string
 	Value() int
 }
 
-func (c codec) Name() string {
+func (c encoding) Name() string {
 	return encodingsName[c]
 }
 
-func (c codec) Value() int {
+func (c encoding) Value() int {
 	return int(c)
 }
 
-func ToEncoding(enumVal int) (codec, error) {
-	if enumVal >= len(encodingsCodec) {
+func EncodingFromEnumValue(enumVal int) (encoding, error) {
+	if enumVal >= len(encodings) {
 		return -1, errors.New("unsupported audio encoding")
 	}
-	return encodingsCodec[enumVal], nil
+	return encodings[enumVal], nil
 }
