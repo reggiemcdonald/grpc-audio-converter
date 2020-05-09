@@ -11,12 +11,12 @@ import (
 	"time"
 )
 
-type S3Service interface {
+type FileUploader interface {
 	Upload(id string, encoding string, file *os.File) error
 	SignedUrl(id string) (string, error)
 }
 
-type s3Service struct {
+type s3FileUploader struct {
 	s3 *s3.S3
 	uploader *s3manager.Uploader
 	bucket string
@@ -28,20 +28,20 @@ type localS3Service struct {
 	bucket string
 }
 
-func NewS3Service(region string, endpoint string, bucket string) S3Service {
+func NewS3FileUploader(region string, endpoint string, bucket string) FileUploader {
 	sess := session.Must(session.NewSession(&aws.Config{
 		Region: aws.String(region),
 		Endpoint: aws.String(endpoint),
 		S3ForcePathStyle: aws.Bool(true),
 	}))
-	return &s3Service{
+	return &s3FileUploader{
 		s3: s3.New(sess),
 		uploader: s3manager.NewUploader(sess),
 		bucket: bucket,
 	}
 }
 
-func NewLocalS3Service(region string, endpoint string, bucket string) S3Service {
+func NewLocalFileUploader(region string, endpoint string, bucket string) FileUploader {
 	sess := session.Must(session.NewSession(&aws.Config{
 		Region: aws.String(region),
 		Endpoint: aws.String(endpoint),
@@ -74,11 +74,11 @@ func signedUrl(bucket string, id string, s *s3.S3) (string, error) {
 	return req.Presign(24 * time.Hour)
 }
 
-func (s *s3Service) Upload(id string, encoding string, file *os.File) error {
+func (s *s3FileUploader) Upload(id string, encoding string, file *os.File) error {
 	return upload(s.bucket, id, encoding, file, s.uploader)
 }
 
-func (s *s3Service) SignedUrl(id string) (string, error) {
+func (s *s3FileUploader) SignedUrl(id string) (string, error) {
 	return signedUrl(s.bucket, id, s.s3)
 }
 

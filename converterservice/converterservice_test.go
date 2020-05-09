@@ -26,14 +26,14 @@ var testGrpcRequest = &pb.ConvertFileRequest{
 
 type testServerConfiguration struct {
 	Port int
-	S3service *mocks.S3ServiceMock
+	S3service *mocks.S3FileUploaderMock
 	Db *mocks.MockFileConverterRepo
 	ExecutableFactory *mocks.MockExecutableFactory
 }
 
 func testingConfiguration() *testServerConfiguration {
 	port := 3000
-	s3Service := mocks.NewMockS3Service(testRegion, testS3Endpoint, testBucketName)
+	s3Service := mocks.NewMockS3FileUploader(testRegion, testS3Endpoint, testBucketName)
 	db := mocks.NewMockFileConverterRepo()
 	return &testServerConfiguration{
 		Port: port,
