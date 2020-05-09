@@ -27,58 +27,51 @@ type Executable interface {
 	SetStderr(io.Writer)
 }
 
-type convertExecutable struct {
+type defaultExecutable struct {
 	cmd *exec.Cmd
 }
 
-// A command factory
-type ExecutableFactory interface {
-	// Creates the appropriate file conversion command
-	// using the conversion attributes
-	SelectCommand(job *ConversionAttributes) Executable
-}
-
 // Returns a new executable with the given cmd
-func NewExecutable(command string, args ...string) Executable {
-	return &convertExecutable{
+func newDefaultExecutable(command string, args ...string) Executable {
+	return &defaultExecutable{
 		cmd: exec.Command(command, args...),
 	}
 }
 
-func (e *convertExecutable) Start() error {
+func (e *defaultExecutable) Start() error {
 	if err := e.cmd.Start(); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (e *convertExecutable) Wait() error {
+func (e *defaultExecutable) Wait() error {
 	if err := e.cmd.Wait(); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (e *convertExecutable) Stdout() io.Writer {
+func (e *defaultExecutable) Stdout() io.Writer {
 	return e.cmd.Stdout
 }
 
-func (e *convertExecutable) SetStdout(stdout io.Writer) {
+func (e *defaultExecutable) SetStdout(stdout io.Writer) {
 	e.cmd.Stdout = stdout
 }
 
-func (e *convertExecutable) Stdin() io.Reader {
+func (e *defaultExecutable) Stdin() io.Reader {
 	return e.cmd.Stdin
 }
 
-func (e *convertExecutable) SetStdin(stdin io.Reader) {
+func (e *defaultExecutable) SetStdin(stdin io.Reader) {
 	e.cmd.Stdin = stdin
 }
 
-func (e *convertExecutable) Stderr() io.Writer {
+func (e *defaultExecutable) Stderr() io.Writer {
 	return e.cmd.Stderr
 }
 
-func (e *convertExecutable) SetStderr(stderr io.Writer) {
+func (e *defaultExecutable) SetStderr(stderr io.Writer) {
 	e.cmd.Stderr = stderr
 }

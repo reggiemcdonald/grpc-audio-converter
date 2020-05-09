@@ -21,11 +21,11 @@ func NewFileConversionRequest(req *pb.ConvertFileRequest, id string) (*FileConve
 	if req.SourceEncoding == req.DestEncoding {
 		return nil, errors.New("source and destination encoding are the same")
 	}
-	sourceEncoding, err := encodings.ToEncoding(int(req.SourceEncoding))
+	sourceEncoding, err := encodings.EncodingFromEnumValue(int(req.SourceEncoding))
 	if err != nil {
 		return nil, err
 	}
-	destEncoding, err := encodings.ToEncoding(int(req.DestEncoding))
+	destEncoding, err := encodings.EncodingFromEnumValue(int(req.DestEncoding))
 	if err != nil {
 		return nil, err
 	}
