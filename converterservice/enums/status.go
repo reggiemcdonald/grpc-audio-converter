@@ -40,7 +40,7 @@ func (s status) Value() int {
 	return int(s)
 }
 
-func FromEnumValue(enumVal int) (status, error) {
+func StatusFromEnumValue(enumVal int) (status, error) {
 	if enumVal >= len(statuses) {
 		return -1, errors.New("unrecognized status")
 	}
