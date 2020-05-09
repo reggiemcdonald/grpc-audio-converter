@@ -74,3 +74,7 @@ func (m *MockExecutable) Stderr() io.Writer {
 
 func (m *MockExecutable) SetStderr(stderr io.Writer) {
 }
+
+func (m *MockExecutable) String() string {
+	return fmt.Sprintf("mock executable for %s", m.Job.Request.Id)
+}

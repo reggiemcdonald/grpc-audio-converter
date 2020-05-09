@@ -10,13 +10,7 @@ import (
 	"strings"
 )
 
-const (
-	ffmpeg      = "ffmpeg"
-	formatFlag  = "-f"
-	inputFlag   = "-i"
-	mapFlag     = "-map"
-	audioStream = "0:0"
-)
+
 
 type Converter interface {
 	ConvertFile(request *FileConversionRequest)
@@ -64,21 +58,7 @@ func newTempFilePath(id string, destEncoding string, includeExtension bool) stri
 	return fmt.Sprintf("/tmp/%s", id)
 }
 
-/*
- * Returns a pointer to the command object
- */
-func commandForDestEncoding(job *ConversionAttributes) Executable {
-	return newDefaultExecutable(ffmpeg,
-		formatFlag,
-		job.Request.SourceEncoding.Name(),
-		inputFlag,
-		job.Request.SourceUrl,
-		mapFlag,
-		audioStream,
-		formatFlag,
-		job.Request.DestEncoding.Name(),
-		job.TmpFile)
-}
+
 
 /*
  * Downloads a file at the Request source URL and streams it to ffmpeg for conversion

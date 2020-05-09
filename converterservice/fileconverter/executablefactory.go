@@ -2,6 +2,14 @@ package fileconverter
 
 import encodings "github.com/reggiemcdonald/grpc-audio-converter/converterservice/enums"
 
+const (
+	ffmpeg      = "ffmpeg"
+	formatFlag  = "-f"
+	inputFlag   = "-i"
+	mapFlag     = "-map"
+	audioStream = "0:0"
+)
+
 // A command factory
 type ExecutableFactory interface {
 	// Creates the appropriate file conversion command
@@ -14,6 +22,22 @@ type defaultExecutableFactory struct {}
 
 func newDefaultExecutableFactory() ExecutableFactory {
 	return &defaultExecutableFactory{}
+}
+
+/*
+ * Returns a pointer to the command object
+ */
+func commandForDestEncoding(job *ConversionAttributes) Executable {
+	return newDefaultExecutable(ffmpeg,
+		formatFlag,
+		job.Request.SourceEncoding.Name(),
+		inputFlag,
+		job.Request.SourceUrl,
+		mapFlag,
+		audioStream,
+		formatFlag,
+		job.Request.DestEncoding.Name(),
+		job.TmpFile)
 }
 
 /*
