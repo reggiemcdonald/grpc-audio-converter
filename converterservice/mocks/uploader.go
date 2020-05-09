@@ -8,22 +8,22 @@ import (
 	"strings"
 )
 
-type S3ServiceMock struct {
+type S3FileUploaderMock struct {
 	bucket   string
 	endpoint string
 	region   string
 	Success  bool
 }
 
-type LocalS3ServiceMock struct {
+type LocalFileUploaderMock struct {
 	bucket   string
 	endpoint string
 	region   string
 	Success  bool
 }
 
-func NewMockS3Service(region string, endpoint string, bucket string) *S3ServiceMock {
-	return &S3ServiceMock{
+func NewMockS3FileUploader(region string, endpoint string, bucket string) *S3FileUploaderMock {
+	return &S3FileUploaderMock{
 		bucket: bucket,
 		endpoint: endpoint,
 		region: region,
@@ -31,8 +31,8 @@ func NewMockS3Service(region string, endpoint string, bucket string) *S3ServiceM
 	}
 }
 
-func NewMockLocalS3Service(region string, endpoint string, bucket string) *LocalS3ServiceMock {
-	return &LocalS3ServiceMock{
+func NewMockLocalFileUploader(region string, endpoint string, bucket string) *LocalFileUploaderMock {
+	return &LocalFileUploaderMock{
 		bucket: bucket,
 		endpoint: endpoint,
 		region: region,
@@ -49,28 +49,28 @@ func SignedUrl(region string, endpoint string, bucket string, id string) string 
 	return fmt.Sprintf("http://%s.%s/%s/%s", region, endpoint, bucket, id)
 }
 
-func (m *S3ServiceMock) Upload(id string, encoding string, file *os.File) error {
+func (m *S3FileUploaderMock) Upload(id string, encoding string, file *os.File) error {
 	if m.Success {
 		return Upload(id, encoding, file)
 	}
 	return errors.New(fmt.Sprintf("failed to upload %s", id))
 }
 
-func (m *S3ServiceMock) SignedUrl(id string) (string, error) {
+func (m *S3FileUploaderMock) SignedUrl(id string) (string, error) {
 	if m.Success {
 		return SignedUrl(m.region, m.endpoint, m.bucket, id), nil
 	}
 	return "", errors.New(fmt.Sprintf("failed to get signed URL for %s", id))
 }
 
-func (m *LocalS3ServiceMock) Upload(id string, encoding string, file *os.File) error {
+func (m *LocalFileUploaderMock) Upload(id string, encoding string, file *os.File) error {
 	if m.Success {
 		return Upload(id, encoding, file)
 	}
 	return errors.New(fmt.Sprintf("failed to upload %s", id))
 }
 
-func (m *LocalS3ServiceMock) SignedUrl(id string) (string, error) {
+func (m *LocalFileUploaderMock) SignedUrl(id string) (string, error) {
 	if m.Success {
 		url := SignedUrl(m.region, m.endpoint, m.bucket, id)
 		dockerNetworkName := "s3_local"

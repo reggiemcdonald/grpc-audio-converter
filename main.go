@@ -43,11 +43,11 @@ func defaultConfiguration() *converterservice.ConverterServerConfig{
 	dbUser     := getEnvAsString("POSTGRES_USER")
 	dbPass     := getEnvAsString("POSTGRES_PASSWORD")
 	repo       := db.NewFromCredentials(dbUser, dbPass)
-	var s3Service fileconverter.S3Service
+	var s3Service fileconverter.FileUploader
 	if isDev {
-		s3Service = fileconverter.NewLocalS3Service(region, s3endpoint, bucketName)
+		s3Service = fileconverter.NewLocalFileUploader(region, s3endpoint, bucketName)
 	} else {
-		s3Service = fileconverter.NewS3Service(region, s3endpoint, bucketName)
+		s3Service = fileconverter.NewS3FileUploader(region, s3endpoint, bucketName)
 	}
 	return &converterservice.ConverterServerConfig{
 		Port:      port,

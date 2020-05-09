@@ -30,7 +30,7 @@ type ConverterServerConfig struct {
 	Db                db.FileConverterRepository
 	ExecutableFactory fileconverter.ExecutableFactory
 	Port              int
-	S3service         fileconverter.S3Service
+	S3service         fileconverter.FileUploader
 }
 
 /*

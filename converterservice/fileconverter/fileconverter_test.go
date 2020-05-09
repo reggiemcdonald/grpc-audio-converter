@@ -30,12 +30,12 @@ func defaultTestingConfiguration() *fileconverter.ConverterImplementation {
 func TestNewFileConverter(t *testing.T) {
 	config := defaultTestingConfiguration()
 	t.Run("online s3 service", func (t *testing.T) {
-		config.S3service = mocks.NewMockS3Service(testRegion, testS3Endpoint, testBucketName)
+		config.S3service = mocks.NewMockS3FileUploader(testRegion, testS3Endpoint, testBucketName)
 		fileconverter := fileconverter.New(config)
 		assert.NotNil(t, fileconverter, "file converter should not be nil")
 	})
-	t.Run("locla S3 service", func (t *testing.T) {
-		config.S3service = mocks.NewMockLocalS3Service(testRegion, testS3Endpoint, testBucketName)
+	t.Run("local S3 service", func (t *testing.T) {
+		config.S3service = mocks.NewMockLocalFileUploader(testRegion, testS3Endpoint, testBucketName)
 		fileconverter := fileconverter.New(config)
 		assert.NotNil(t, fileconverter, "file converter should not be nil")
 	})
@@ -50,7 +50,7 @@ func TestConvertFile_Success(t *testing.T) {
 	}
 	repo := mocks.NewMockFileConverterRepo()
 	executableFactory := mocks.NewMockExecutableFactory()
-	s3Service := mocks.NewMockS3Service(testRegion, testS3Endpoint, testBucketName)
+	s3Service := mocks.NewMockS3FileUploader(testRegion, testS3Endpoint, testBucketName)
 	config := &fileconverter.ConverterImplementation{
 		Db: repo,
 		ExecutableFactory: executableFactory,
@@ -84,7 +84,7 @@ func TestConvertFile_FailedCmd(t *testing.T) {
 	}
 	repo := mocks.NewMockFileConverterRepo()
 	executableFactory := mocks.NewMockExecutableFactory()
-	s3Service := mocks.NewMockS3Service(testRegion, testS3Endpoint, testBucketName)
+	s3Service := mocks.NewMockS3FileUploader(testRegion, testS3Endpoint, testBucketName)
 	config := &fileconverter.ConverterImplementation{
 		Db: repo,
 		ExecutableFactory: executableFactory,
@@ -117,7 +117,7 @@ func TestConvertFile_FailedRepo(t *testing.T) {
 	}
 	repo := mocks.NewMockFileConverterRepo()
 	executableFactory := mocks.NewMockExecutableFactory()
-	s3Service := mocks.NewMockS3Service(testRegion, testS3Endpoint, testBucketName)
+	s3Service := mocks.NewMockS3FileUploader(testRegion, testS3Endpoint, testBucketName)
 	config := &fileconverter.ConverterImplementation{
 		Db: repo,
 		ExecutableFactory: executableFactory,
@@ -144,7 +144,7 @@ func TestConvertFile_FailedS3(t *testing.T) {
 	}
 	repo := mocks.NewMockFileConverterRepo()
 	executableFactory := mocks.NewMockExecutableFactory()
-	s3Service := mocks.NewMockS3Service(testRegion, testS3Endpoint, testBucketName)
+	s3Service := mocks.NewMockS3FileUploader(testRegion, testS3Endpoint, testBucketName)
 	config := &fileconverter.ConverterImplementation{
 		Db: repo,
 		ExecutableFactory: executableFactory,

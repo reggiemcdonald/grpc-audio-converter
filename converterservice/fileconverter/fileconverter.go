@@ -25,11 +25,11 @@ type Converter interface {
 type ConverterImplementation struct {
 	Db                db.FileConverterRepository
 	ExecutableFactory ExecutableFactory
-	S3service         S3Service
+	S3service         FileUploader
 }
 
 type FileConverter struct {
-	s3Service         S3Service
+	s3Service         FileUploader
 	db                db.FileConverterRepository
 	executableFactory ExecutableFactory
 }
