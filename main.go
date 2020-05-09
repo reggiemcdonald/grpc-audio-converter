@@ -4,6 +4,8 @@ package main
 import (
 	"github.com/joho/godotenv"
 	"github.com/reggiemcdonald/grpc-audio-converter/converterservice"
+	db "github.com/reggiemcdonald/grpc-audio-converter/converterservice/db"
+	"github.com/reggiemcdonald/grpc-audio-converter/converterservice/fileconverter"
 	"log"
 	"os"
 	"strconv"
@@ -40,16 +42,16 @@ func defaultConfiguration() *converterservice.ConverterServerConfig{
 	isDev      := getEnvAsString("DEV") == "true"
 	dbUser     := getEnvAsString("POSTGRES_USER")
 	dbPass     := getEnvAsString("POSTGRES_PASSWORD")
-	db         := converterservice.NewFileConverterData(dbUser, dbPass)
-	var s3Service converterservice.S3Service
+	repo       := db.NewFromCredentials(dbUser, dbPass)
+	var s3Service fileconverter.S3Service
 	if isDev {
-		s3Service = converterservice.NewLocalS3Service(region, s3endpoint, bucketName)
+		s3Service = fileconverter.NewLocalS3Service(region, s3endpoint, bucketName)
 	} else {
-		s3Service = converterservice.NewS3Service(region, s3endpoint, bucketName)
+		s3Service = fileconverter.NewS3Service(region, s3endpoint, bucketName)
 	}
 	return &converterservice.ConverterServerConfig{
-		Port: port,
-		Db: db,
+		Port:      port,
+		Db:        repo,
 		S3service: s3Service,
 	}
 }

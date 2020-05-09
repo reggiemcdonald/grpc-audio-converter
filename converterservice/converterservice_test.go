@@ -12,6 +12,12 @@ import (
 	"time"
 )
 
+const (
+	testRegion = "test-region"
+	testS3Endpoint = "test-endpoint"
+	testBucketName = "test-bucket-name"
+)
+
 var testGrpcRequest = &pb.ConvertFileRequest{
 	SourceUrl: "test-url",
 	SourceEncoding: pb.Encoding_MP3,
@@ -21,14 +27,14 @@ var testGrpcRequest = &pb.ConvertFileRequest{
 type testServerConfiguration struct {
 	Port int
 	S3service *mocks.S3ServiceMock
-	Db *mocks.MockFileConverterDb
+	Db *mocks.MockFileConverterRepo
 	ExecutableFactory *mocks.MockExecutableFactory
 }
 
 func testingConfiguration() *testServerConfiguration {
 	port := 3000
 	s3Service := mocks.NewMockS3Service(testRegion, testS3Endpoint, testBucketName)
-	db := mocks.NewMockFileConverterDb()
+	db := mocks.NewMockFileConverterRepo()
 	return &testServerConfiguration{
 		Port: port,
 		S3service: s3Service,

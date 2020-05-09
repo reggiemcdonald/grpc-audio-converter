@@ -1,9 +1,10 @@
 // Performs file conversion
-package converterservice
+package fileconverter
 
 import (
 	"fmt"
 	_ "github.com/lib/pq"
+	"github.com/reggiemcdonald/grpc-audio-converter/converterservice/db"
 	encodings "github.com/reggiemcdonald/grpc-audio-converter/converterservice/enums"
 	"log"
 	"os"
@@ -18,19 +19,19 @@ const (
 	audioStream = "0:0"
 )
 
-type FileConverterService interface {
+type Converter interface {
 	ConvertFile(request *FileConversionRequest)
 }
 
-type FileConverterConfiguration struct {
-	Db                FileConverterDataRepository
+type ConverterImplementation struct {
+	Db                db.FileConverterRepository
 	ExecutableFactory ExecutableFactory
 	S3service         S3Service
 }
 
 type FileConverter struct {
 	s3Service         S3Service
-	db                FileConverterDataRepository
+	db                db.FileConverterRepository
 	executableFactory ExecutableFactory
 }
 
@@ -43,7 +44,7 @@ type ConversionAttributes struct {
 type defaultExecutableFactory struct {}
 
 // An init function for the file converter
-func NewFileConverter(config *FileConverterConfiguration) *FileConverter {
+func New(config *ConverterImplementation) *FileConverter {
 	s3Service := config.S3service
 	factory := config.ExecutableFactory
 	if factory == nil {

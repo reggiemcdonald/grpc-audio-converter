@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
+	db "github.com/reggiemcdonald/grpc-audio-converter/converterservice/db"
+	"github.com/reggiemcdonald/grpc-audio-converter/converterservice/fileconverter"
 	"github.com/reggiemcdonald/grpc-audio-converter/pb"
 	context "golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -16,8 +18,8 @@ import (
  * The parts of the converter server
  */
 type ConverterServer struct {
-	fileConverter FileConverterService
-	db            FileConverterDataRepository
+	fileConverter fileconverter.Converter
+	repo          db.FileConverterRepository
 	config        *ConverterServerConfig
 }
 
@@ -25,10 +27,10 @@ type ConverterServer struct {
  * The configuration for the converter server
  */
 type ConverterServerConfig struct {
-	Db                FileConverterDataRepository
-	ExecutableFactory ExecutableFactory
+	Db                db.FileConverterRepository
+	ExecutableFactory fileconverter.ExecutableFactory
 	Port              int
-	S3service         S3Service
+	S3service         fileconverter.S3Service
 }
 
 /*
@@ -36,12 +38,12 @@ type ConverterServerConfig struct {
  */
 func NewWithConfiguration(config *ConverterServerConfig) *ConverterServer {
 	return &ConverterServer{
-		fileConverter: NewFileConverter(&FileConverterConfiguration{
+		fileConverter: fileconverter.New(&fileconverter.ConverterImplementation{
 			S3service: config.S3service,
-			Db:         config.Db,
+			Db: config.Db,
 			ExecutableFactory: config.ExecutableFactory,
 		}),
-		db: config.Db,
+		repo:   config.Db,
 		config: config,
 	}
 }
@@ -62,14 +64,14 @@ func Start(server *ConverterServer) {
 
 func (s *ConverterServer) ConvertFile(ctx context.Context, req *pb.ConvertFileRequest) (*pb.ConvertFileResponse, error) {
 	id := uuid.New().String()
-	request, err := NewFileConversionRequest(req, id)
+	request, err := fileconverter.NewFileConversionRequest(req, id)
 	if err != nil {
-		if _, dbErr := s.db.FailConversion(id); dbErr != nil {
+		if _, dbErr := s.repo.FailConversion(id); dbErr != nil {
 			log.Printf("failed to update DB with failure, encountered %v", dbErr)
 		}
 		return nil, err
 	}
-	if _, err := s.db.NewRequest(id); err != nil {
+	if _, err := s.repo.NewRequest(id); err != nil {
 		return nil, errors.New("an internal error occurred")
 	}
 	go s.fileConverter.ConvertFile(request)
@@ -77,8 +79,7 @@ func (s *ConverterServer) ConvertFile(ctx context.Context, req *pb.ConvertFileRe
 }
 
 func (s *ConverterServer) ConvertFileQuery(ctx context.Context, req *pb.ConvertFileQueryRequest) (*pb.ConvertFileQueryResponse, error) {
-	db := s.db
-	job, err := db.GetConversion(req.Id)
+	job, err := s.repo.GetConversion(req.Id)
 	if err != nil {
 		log.Printf("failed to get %s, encountered %v", req.Id, err)
 		return nil, errors.New(fmt.Sprintf("failed to get %s", req.Id))

@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/reggiemcdonald/grpc-audio-converter/converterservice"
+	"github.com/reggiemcdonald/grpc-audio-converter/converterservice/fileconverter"
 	"io"
 	"os"
 )
@@ -16,7 +16,7 @@ type MockExecutableFactory struct {
 
 type MockExecutable struct {
 	Success bool
-	Job     *converterservice.ConversionAttributes
+	Job     *fileconverter.ConversionAttributes
 }
 
 func NewMockExecutableFactory() *MockExecutableFactory {
@@ -26,7 +26,7 @@ func NewMockExecutableFactory() *MockExecutableFactory {
 	}
 }
 
-func (m *MockExecutableFactory) SelectCommand(job *converterservice.ConversionAttributes) converterservice.Executable {
+func (m *MockExecutableFactory) SelectCommand(job *fileconverter.ConversionAttributes) fileconverter.Executable {
 	executable := &MockExecutable{
 		Success: m.Success,
 		Job: job,

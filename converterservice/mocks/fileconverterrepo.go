@@ -1,29 +1,29 @@
-// Mocks FileConverterData
+// Mocks FileConverterRepository
 package mocks
 
 import (
 	"errors"
 	"fmt"
-	"github.com/reggiemcdonald/grpc-audio-converter/converterservice"
+	"github.com/reggiemcdonald/grpc-audio-converter/converterservice/db"
 	"github.com/reggiemcdonald/grpc-audio-converter/converterservice/enums"
 	"time"
 )
 
-type MockFileConverterDb struct {
-	Data    map[string]*converterservice.ConvertJob
+type MockFileConverterRepo struct {
+	Data    map[string]*db.ConvertJob
 	Success bool
 }
 
-func NewMockFileConverterDb() *MockFileConverterDb {
-	return &MockFileConverterDb{
-		Data:    make(map[string]*converterservice.ConvertJob),
+func NewMockFileConverterRepo() *MockFileConverterRepo {
+	return &MockFileConverterRepo{
+		Data:    make(map[string]*db.ConvertJob),
 		Success: true,
 	}
 }
 
-func (m *MockFileConverterDb) NewRequest(id string) (bool, error) {
+func (m *MockFileConverterRepo) NewRequest(id string) (bool, error) {
 	if m.Success {
-		m.Data[id] = &converterservice.ConvertJob{
+		m.Data[id] = &db.ConvertJob{
 			Id: id,
 			Status: enums.QUEUED.Name(),
 			CurrUrl: "NONE",
@@ -34,7 +34,7 @@ func (m *MockFileConverterDb) NewRequest(id string) (bool, error) {
 	return false, errors.New(fmt.Sprintf("failed to create request %s", id))
 }
 
-func (m *MockFileConverterDb) StartConversion(id string) (bool, error) {
+func (m *MockFileConverterRepo) StartConversion(id string) (bool, error) {
 	if m.Success && m.Data[id] != nil {
 		job := m.Data[id]
 		job.Status = enums.CONVERTING.Name()
@@ -44,7 +44,7 @@ func (m *MockFileConverterDb) StartConversion(id string) (bool, error) {
 	return false, errors.New(fmt.Sprintf("failed to set status to converting in DB for id %s", id))
 }
 
-func (m *MockFileConverterDb) CompleteConversion(id string, url string) (bool, error) {
+func (m *MockFileConverterRepo) CompleteConversion(id string, url string) (bool, error) {
 	if m.Success && m.Data[id] != nil {
 		job := m.Data[id]
 		job.CurrUrl = url
@@ -55,7 +55,7 @@ func (m *MockFileConverterDb) CompleteConversion(id string, url string) (bool, e
 	return false, errors.New(fmt.Sprintf("failed to set completion in DB for id %s and url %s", id, url))
 }
 
-func (m *MockFileConverterDb) FailConversion(id string) (bool, error) {
+func (m *MockFileConverterRepo) FailConversion(id string) (bool, error) {
 	if m.Success && m.Data[id] != nil {
 		job := m.Data[id]
 		job.Status = enums.FAILED.Name()
@@ -65,7 +65,7 @@ func (m *MockFileConverterDb) FailConversion(id string) (bool, error) {
 	return false, errors.New(fmt.Sprintf("failed to set failure in DB for Id %s", id))
 }
 
-func (m *MockFileConverterDb) GetConversion(id string) (*converterservice.ConvertJob, error) {
+func (m *MockFileConverterRepo) GetConversion(id string) (*db.ConvertJob, error) {
 	if m.Success && m.Data[id] != nil {
 		return m.Data[id], nil
 	}
