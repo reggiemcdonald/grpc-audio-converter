@@ -14,7 +14,7 @@ import (
 /*
  * Returns the required environment variable if it is present
  */
-func getEnvAsString(key string) string {
+func getRequiredEnv(key string) string {
 	value, exists := os.LookupEnv(key)
 	if !exists {
 		log.Fatalf("missing required environment variable %s", key)
@@ -22,8 +22,16 @@ func getEnvAsString(key string) string {
 	return value
 }
 
-func getEnvAsInt(key string) int {
-	stringValue := getEnvAsString(key)
+func getEnvWithDefault(key string, def string) string {
+	value, exists := os.LookupEnv(key)
+	if !exists {
+		return def
+	}
+	return value
+}
+
+func getRequiredEnvAsInt(key string) int {
+	stringValue := getRequiredEnv(key)
 	numericValue, err := strconv.Atoi(stringValue)
 	if err != nil {
 		log.Fatalf("invalid env variable %s, encountered %v", key, err)
@@ -35,13 +43,13 @@ func getEnvAsInt(key string) int {
  * Returns the server configuration from environment variables
  */
 func defaultConfiguration() *converterservice.ConverterServerConfig{
-	port       := getEnvAsInt("PORT")
-	bucketName := getEnvAsString("BUCKET_NAME")
-	s3endpoint := getEnvAsString("S3_ENDPOINT")
-	region     := getEnvAsString("REGION")
-	isDev      := getEnvAsString("DEV") == "true"
-	dbUser     := getEnvAsString("POSTGRES_USER")
-	dbPass     := getEnvAsString("POSTGRES_PASSWORD")
+	port       := getRequiredEnvAsInt("PORT")
+	bucketName := getRequiredEnv("BUCKET_NAME")
+	region     := getRequiredEnv("REGION")
+	s3endpoint := getEnvWithDefault("S3_ENDPOINT", "")
+	isDev      := getEnvWithDefault("DEV", "false") == "true"
+	dbUser     := getRequiredEnv("POSTGRES_USER")
+	dbPass     := getRequiredEnv("POSTGRES_PASSWORD")
 	repo       := db.NewFromCredentials(dbUser, dbPass)
 	var s3Service fileconverter.FileUploader
 	if isDev {
