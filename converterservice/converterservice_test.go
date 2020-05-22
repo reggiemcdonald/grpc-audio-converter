@@ -49,6 +49,8 @@ func toServerConfiguration(testConfig *testServerConfiguration) *converterservic
 		ExecutableFactory: testConfig.ExecutableFactory,
 		Port: testConfig.Port,
 		S3service: testConfig.S3service,
+		Concurrency: 5,
+		QueueSize: 100,
 	}
 }
 

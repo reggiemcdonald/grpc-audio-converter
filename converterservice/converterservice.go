@@ -21,6 +21,7 @@ type ConverterServer struct {
 	fileConverter fileconverter.Converter
 	repo          db.FileConverterRepository
 	config        *ConverterServerConfig
+	queue         FileConverterJobQueue
 }
 
 /*
@@ -35,10 +36,22 @@ type ConverterServerConfig struct {
 	S3service         fileconverter.FileUploader
 }
 
+type converterServiceJob struct {
+	request *fileconverter.FileConversionRequest
+	converter fileconverter.Converter
+}
+
 /*
  * Creates a new converter service instance
  */
 func NewWithConfiguration(config *ConverterServerConfig) *ConverterServer {
+	queue := NewJobQueue(&JobQueueConfiguration{
+		Concurrency: config.Concurrency,
+		QueueSize: config.QueueSize,
+	})
+	if err := queue.Start(); err != nil {
+		log.Fatalf("could not start job queue, encountered %v", err)
+	}
 	return &ConverterServer{
 		fileConverter: fileconverter.New(&fileconverter.ConverterImplementation{
 			S3service: config.S3service,
@@ -47,6 +60,14 @@ func NewWithConfiguration(config *ConverterServerConfig) *ConverterServer {
 		}),
 		repo:   config.Db,
 		config: config,
+		queue: queue,
+	}
+}
+
+func (s *ConverterServer) newJob(request *fileconverter.FileConversionRequest) FileConverterJob {
+	return &converterServiceJob{
+		converter: s.fileConverter,
+		request: request,
 	}
 }
 
@@ -76,7 +97,10 @@ func (s *ConverterServer) ConvertFile(ctx context.Context, req *pb.ConvertFileRe
 	if _, err := s.repo.NewRequest(id); err != nil {
 		return nil, errors.New("an internal error occurred")
 	}
-	go s.fileConverter.ConvertFile(request)
+	if err = s.queue.Enqueue(s.newJob(request)); err != nil {
+		log.Printf("failed to add job to queue, encountered %v", err)
+		return nil, errors.New("an internal error occurred")
+	}
 	return &pb.ConvertFileResponse{Accepted: true, Id: id}, nil
 }
 
@@ -96,4 +120,8 @@ func (s *ConverterServer) ConvertFileQuery(ctx context.Context, req *pb.ConvertF
 func (s *ConverterServer) ConvertStream(ctx context.Context, req *pb.ConvertStreamRequest) (*pb.ConvertStreamResponse, error) {
 	// TODO: stub
 	return &pb.ConvertStreamResponse{Buff: []byte{}, Encoding: 0}, nil
+}
+
+func (j *converterServiceJob) Start() {
+	j.converter.ConvertFile(j.request)
 }
