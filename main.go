@@ -39,18 +39,32 @@ func getRequiredEnvAsInt(key string) int {
 	return numericValue
 }
 
+func getEnvAsIntWithDefault(key string, def int) int {
+	stringValue := getEnvWithDefault(key, "")
+	if stringValue == "" {
+		return def
+	}
+	numericValue, err := strconv.Atoi(stringValue)
+	if err != nil {
+		log.Fatalf("invalid env variable %s, encountered %v", key, err)
+	}
+	return numericValue
+}
+
 /*
  * Returns the server configuration from environment variables
  */
 func defaultConfiguration() *converterservice.ConverterServerConfig{
-	port       := getRequiredEnvAsInt("PORT")
+	concurrency := getEnvAsIntWithDefault("CONCURRENCY", 5)
+	poolSize := getEnvAsIntWithDefault("QUEUE_SIZE", 100)
+	port := getRequiredEnvAsInt("PORT")
 	bucketName := getRequiredEnv("BUCKET_NAME")
-	region     := getRequiredEnv("REGION")
+	region := getRequiredEnv("REGION")
 	s3endpoint := getEnvWithDefault("S3_ENDPOINT", "")
-	isDev      := getEnvWithDefault("DEV", "false") == "true"
-	dbUser     := getRequiredEnv("POSTGRES_USER")
-	dbPass     := getRequiredEnv("POSTGRES_PASSWORD")
-	repo       := db.NewFromCredentials(dbUser, dbPass)
+	isDev := getEnvWithDefault("DEV", "false") == "true"
+	dbUser := getRequiredEnv("POSTGRES_USER")
+	dbPass := getRequiredEnv("POSTGRES_PASSWORD")
+	repo := db.NewFromCredentials(dbUser, dbPass)
 	var s3Service fileconverter.FileUploader
 	if isDev {
 		s3Service = fileconverter.NewLocalFileUploader(region, s3endpoint, bucketName)
@@ -58,9 +72,11 @@ func defaultConfiguration() *converterservice.ConverterServerConfig{
 		s3Service = fileconverter.NewS3FileUploader(region, s3endpoint, bucketName)
 	}
 	return &converterservice.ConverterServerConfig{
-		Port:      port,
-		Db:        repo,
-		S3service: s3Service,
+		Concurrency: concurrency,
+		QueueSize:   poolSize,
+		Port:        port,
+		Db:          repo,
+		S3service:   s3Service,
 	}
 }
 

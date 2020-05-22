@@ -27,8 +27,10 @@ type ConverterServer struct {
  * The configuration for the converter server
  */
 type ConverterServerConfig struct {
+	Concurrency       int
 	Db                db.FileConverterRepository
 	ExecutableFactory fileconverter.ExecutableFactory
+	QueueSize         int
 	Port              int
 	S3service         fileconverter.FileUploader
 }
