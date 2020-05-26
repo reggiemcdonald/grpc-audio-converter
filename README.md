@@ -11,8 +11,8 @@ Its still a work in progress - see next section.
 - [x] Ability to convert full files from public URL
 - [x] Ability to retrieve status updates and presigned URL when complete
 - [x] Containerized environment
+- [x] Limited concurrency
 - [ ] Converting buffers? (would only work for audio that doesn't need seekable files)
-- [ ] Limited concurrency, channel listeners
 - [ ] Proper instructions on use (will post once I get the docker containers setup)
 
 ### Supported Encodings
