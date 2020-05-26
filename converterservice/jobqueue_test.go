@@ -85,10 +85,13 @@ func TestJobQueue_Enqueue_PoolSize(t *testing.T) {
 	if err := queue.Start(); err != nil {
 		t.Fatal("failed to start queue")
 	}
-	bools := []bool{false, false, false, false, false}
+	bools := make([]bool, 5)
 	allDone := make(chan bool)
 	for i, _ := range bools {
-		queue.Enqueue(newMockJob(&bools[i], 5))
+		bools[i] = false
+		if err := queue.Enqueue(newMockJob(&bools[i], 5)); err != nil {
+			t.Fatal(err)
+		}
 	}
 	go check(bools, allDone)
 	timeout := time.After(6 * time.Second)
@@ -107,12 +110,12 @@ func TestJobQueue_Enqueue_MoreJobs(t *testing.T) {
 		t.Fatal("failed to start queue")
 	}
 	bools := make([]bool, 10)
-	for i, _ := range bools {
-		bools[i] = false
-	}
 	allDone := make(chan bool)
 	for i, _ := range bools {
-		queue.Enqueue(newMockJob(&bools[i], 5))
+		bools[i] = false
+		if err := queue.Enqueue(newMockJob(&bools[i], 5)); err != nil {
+			t.Fatal(err)
+		}
 	}
 	go check(bools, allDone)
 	timeout := time.After(11 * time.Second)
@@ -131,12 +134,12 @@ func TestJobQueue_Enqueue_StagnatedCompletion(t *testing.T) {
 		t.Fatal("failed to start queue")
 	}
 	bools := make([]bool, 10)
-	for i, _ := range bools {
-		bools[i] = false
-	}
 	allDone := make(chan bool)
 	for i, _ := range bools {
-		queue.Enqueue(newMockJob(&bools[i], rand.Intn(5)))
+		bools[i] = false
+		if err := queue.Enqueue(newMockJob(&bools[i], rand.Intn(5))); err != nil {
+			t.Fatal(err)
+		}
 	}
 	go check(bools, allDone)
 	timeout := time.After(time.Duration(5 * len(bools)) * time.Second)
@@ -157,9 +160,9 @@ func TestJobQueue_NotOverConcurrency(t *testing.T) {
 	bools := make([]bool, 10)
 	for i, _ := range bools {
 		bools[i] = false
-	}
-	for i, _ := range bools {
-		queue.Enqueue(newMockJob(&bools[i], 5))
+		if err := queue.Enqueue(newMockJob(&bools[i], 5)); err != nil {
+			t.Fatal(err)
+		}
 	}
 	<- time.After(6 * time.Second)
 	count := 0

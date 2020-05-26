@@ -26,7 +26,7 @@ type JobQueueConfiguration struct {
 }
 
 type worker struct {
-	waitGroup sync.WaitGroup
+	waitGroup *sync.WaitGroup
 	freeChans chan chan FileConverterJob
 	thisChan chan FileConverterJob
 	stopWorker chan bool
@@ -42,7 +42,7 @@ type jobQueue struct {
 	workers []*worker
 }
 
-func newWorker(waitGroup sync.WaitGroup, freeChans chan chan FileConverterJob) *worker {
+func newWorker(waitGroup *sync.WaitGroup, freeChans chan chan FileConverterJob) *worker {
 	return &worker{
 		waitGroup: waitGroup,
 		freeChans: freeChans,
@@ -52,7 +52,7 @@ func newWorker(waitGroup sync.WaitGroup, freeChans chan chan FileConverterJob) *
 }
 
 func NewJobQueue(config *JobQueueConfiguration) FileConverterJobQueue {
-	waitGroup := sync.WaitGroup{}
+	waitGroup := &sync.WaitGroup{}
 	readyWorkers := make(chan chan FileConverterJob, config.Concurrency)
 	readyJobs := make(chan FileConverterJob, config.QueueSize)
 	workers := make([]*worker, config.Concurrency)
