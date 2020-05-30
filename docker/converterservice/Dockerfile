@@ -9,6 +9,7 @@ FROM golang:latest
 RUN mkdir /app
 WORKDIR /app
 COPY . /app
+COPY --from=0 /pb/* pb/
 RUN CGO_ENABLED=0 GOOS=linux go build -o converterservice-app .
 
 FROM jrottenberg/ffmpeg:4.1-alpine
