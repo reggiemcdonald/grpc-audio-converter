@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -31,7 +32,11 @@ type body struct {
 }
 
 func main() {
-	conn, err := grpc.Dial("converter:3000", grpc.WithInsecure())
+	converterPort, exists := os.LookupEnv("CONVERTER_SERVICE_PORT")
+	if !exists {
+		log.Fatal("missing environment variable CONVERTER_SERVICE_PORT")
+	}
+	conn, err := grpc.Dial(fmt.Sprintf("converter:%s", converterPort), grpc.WithInsecure())
 	if err != nil {
 		fmt.Printf("Encountered error dialing %v", err)
 		log.Fatal("Failed to connect to the grpc service")

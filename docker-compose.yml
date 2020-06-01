@@ -15,15 +15,23 @@ services:
       context: .
       dockerfile: docker/converterservice/Dockerfile
     ports:
-      - 3000:3000
+      - 9090:9090
     container_name: audio-converter-service
     environment:
       - BUCKET_NAME
-      - PORT=3000
+      - PORT=9090
   rest_interface:
     build:
       context: .
       dockerfile: docker/restinterface/Dockerfile
     ports:
       - 4000:4000
+    environment:
+      - CONVERTER_SERVICE_PORT=9090
     container_name: audio-converter-rest-interface
+  proxy:
+    build:
+      context: ./docker/proxy
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
